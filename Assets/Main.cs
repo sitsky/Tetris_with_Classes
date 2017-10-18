@@ -72,30 +72,32 @@ public class Main : MonoBehaviour {
 
         if (Input.GetKeyDown(KeyCode.LeftArrow))
         {
-            Active_Blocks[0].move_left();
+            Active_Blocks[Active_Blocks.Count - 1].move_left();
         }
 
         if (Input.GetKeyDown(KeyCode.RightArrow))
         {
-            Active_Blocks[0].move_right();
+            Active_Blocks[Active_Blocks.Count - 1].move_right();
         }
 
         if (Input.GetKeyDown(KeyCode.UpArrow))
         {
-            Active_Blocks[0].rotate_clockwise();
+            Active_Blocks[Active_Blocks.Count - 1].rotate_clockwise();
         }
 
         if (Input.GetKeyDown(KeyCode.DownArrow))
         {
-            Active_Blocks[0].rotate_anticlockwise();
+            Active_Blocks[Active_Blocks.Count - 1].rotate_anticlockwise();
         }
 
-        Active_Blocks[0].position.y = Active_Blocks[0].position.y - 0.1f;
+        Active_Blocks[Active_Blocks.Count-1].position.y = Active_Blocks[Active_Blocks.Count - 1].position.y - 0.1f;
 
-        if (Active_Blocks[0].position.y < -20)
+        if (Active_Blocks[Active_Blocks.Count - 1].position.y < -20)
         {
+            Debug.Log(Active_Blocks[Active_Blocks.Count - 1].position.y.ToString());
             Active_Blocks.Add(Next_Block);
             Next_Block = new Block();
+            Debug.Log(Active_Blocks[Active_Blocks.Count - 1].position.y.ToString());
         }
         grid_text.text = "Active_Blocks.Count: " + Active_Blocks.Count.ToString();
     } 
