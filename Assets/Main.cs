@@ -83,9 +83,9 @@ public class Main : MonoBehaviour {
             Active_Blocks[Active_Blocks.Count - 1].rotate_anticlockwise();
         }
 
-        Active_Blocks[Active_Blocks.Count-1].position.y = Active_Blocks[Active_Blocks.Count - 1].position.y - 0.1f;
+        Active_Blocks[Active_Blocks.Count-1].position.y = Active_Blocks[Active_Blocks.Count - 1].position.y - 1f;
 
-        if (Active_Blocks[Active_Blocks.Count - 1].position.y < -20)
+        if (Active_Blocks[Active_Blocks.Count - 1].position.y < -100)
         {
             Debug.Log(Active_Blocks[Active_Blocks.Count - 1].position.y.ToString());
             Active_Blocks.Add(Next_Block);
@@ -93,6 +93,7 @@ public class Main : MonoBehaviour {
             Debug.Log(Active_Blocks[Active_Blocks.Count - 1].position.y.ToString());
         }
         grid_text.text = Active_Blocks[Active_Blocks.Count - 1].myShape.ToString();
+        grid_text.transform.position = Active_Blocks[Active_Blocks.Count - 1].position;
     }
 
     public void Block_inactive() { }
