@@ -3,10 +3,11 @@ using System.Collections;
 
 public class Block : MonoBehaviour {
 
-    enum Block_Shape : int { L = 1, J, I, O, S, Z, T };
-    Vector2 position;
-    Vector2 orientation;
-    Block_Shape myShape;
+    public enum Block_Shape : int { L = 1, J, I, O, S, Z, T };
+
+    public Vector2 position;
+    public Vector2 orientation;
+    public Block_Shape myShape;
 
     public Block()
     {
@@ -14,6 +15,8 @@ public class Block : MonoBehaviour {
         orientation = new Vector2(0, 1);
         myShape = (Block_Shape)Random.Range(1, 7);
     }
+
+
     public void move_left()
     {
         position.x = position.x - 1;
