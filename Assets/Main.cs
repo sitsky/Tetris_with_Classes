@@ -4,60 +4,27 @@ using System.Collections;
 using UnityEditor;
 using System.Collections.Generic;
 
-public class Block
-{
-    public enum Block_Shape : int { L = 1, J, I, O, S, Z, T };
-    public Vector2 position;
-    public Vector2 orientation;
-    public Block_Shape myShape;
-    public Block()
-    {
-        position = new Vector2(0, 0);
-        orientation = new Vector2(0, 1);
-        myShape = (Block_Shape)Random.Range(1, 7);
-    }
-    public void move_left()
-    {
-        position.x = position.x - 1;
-    }
-    public void move_right()
-    {
-        position.x = position.x + 1;
-    }
-    public void rotate_clockwise()
-    {
-        Vector2 temp;
-        temp.x = orientation.x * 0 + orientation.y * 1;
-        temp.y = orientation.x * -1 + orientation.y * 0;
-        orientation = temp;
-    }
-    public void rotate_anticlockwise()
-    {
-        Vector2 temp;
-        temp.x = orientation.x * 0 + orientation.y * -1;
-        temp.y = orientation.x * 1 + orientation.y * 0;
-        orientation = temp;
-    }
-}
-
 public class Main : MonoBehaviour {
 
-    Block Next_Block;
+    public Block Next_Block;
     List<Block> Active_Blocks = new List<Block>();
-    float time_of_last_down;
-    Text grid_text;
+
+    Text text_box;
 
     // Use this for initialization
     void Start () {
 
-        grid_text = GetComponent<Text>();
+        text_box = GetComponent<Text>();
 
         Next_Block = new Block();
+        
         Active_Blocks.Add(Next_Block);
+        Debug.Log("Next: " + Next_Block.myShape);
+        Debug.Log(Active_Blocks[Active_Blocks.Count - 1].myShape);
 
-        grid_text.text = Active_Blocks[Active_Blocks.Count - 1].myShape.ToString();
+        text_box.text = Active_Blocks[Active_Blocks.Count - 1].myShape;
         Next_Block = new Block();
-        time_of_last_down = 0;
+        
     }
 
     // Update is called once per frame
@@ -92,8 +59,10 @@ public class Main : MonoBehaviour {
             Next_Block = new Block();
             Debug.Log(Active_Blocks[Active_Blocks.Count - 1].position.y.ToString());
         }
-        grid_text.text = Active_Blocks[Active_Blocks.Count - 1].myShape.ToString();
-        grid_text.transform.position = Active_Blocks[Active_Blocks.Count - 1].position;
+        text_box.text = Active_Blocks[Active_Blocks.Count - 1].myShape;
+
+        //this needs to change
+        text_box.transform.position = Active_Blocks[Active_Blocks.Count - 1].position; 
     }
 
     public void Block_inactive() { }
