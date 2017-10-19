@@ -45,14 +45,19 @@ public class Main : MonoBehaviour {
             Active_Blocks[Active_Blocks.Count - 1].rotate_anticlockwise();
         }
 
-        Active_Blocks[Active_Blocks.Count-1].position.y = Active_Blocks[Active_Blocks.Count - 1].position.y - 1f;
+        Active_Blocks[Active_Blocks.Count - 1].move_down();
 
-        if (Active_Blocks[Active_Blocks.Count - 1].position.y < -100)
+        Debug.Log(Active_Blocks[Active_Blocks.Count - 1].position[0].ToString());
+        
+            for (int part_of_block = 0; part_of_block < Active_Blocks[Active_Blocks.Count - 1].position.Length; part_of_block++)
         {
-            Active_Blocks.Add(Next_Block);
-            Next_Block = new Block();
-        }
+            if (Active_Blocks[Active_Blocks.Count - 1].position[part_of_block].y < -100)
+            {
+                Active_Blocks.Add(Next_Block);
+                Next_Block = new Block();
+            }
 
+        }
         display();
     }
 
