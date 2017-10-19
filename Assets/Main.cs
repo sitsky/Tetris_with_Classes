@@ -6,18 +6,24 @@ using System.Collections.Generic;
 
 public class Main : MonoBehaviour {
 
-    int number_parts_in_a_block;
+    int Left_boundary = -5;
+    int Right_boundary = 6;
+    int Bottom_boundary = 20;
 
     public Block Next_Block;
     List<Block> Active_Blocks = new List<Block>();
-
+    int number_parts_in_a_block;
 
     float last_drop;
+    float DropSpeed = 0.5f;
     Text text_box;
+
+    public bool Render_Switch;
 
     // Use this for initialization
     void Start () {
         last_drop = 0;
+        Render_Switch = false;
 
         text_box = GetComponent<Text>();
 
@@ -30,9 +36,7 @@ public class Main : MonoBehaviour {
 
     // Update is called once per frame
     void Update() {
-
         bool no_room = false;
-
         if (Input.GetKeyDown(KeyCode.LeftArrow))
         {
             Active_Blocks[Active_Blocks.Count - 1].move_left();
@@ -43,8 +47,11 @@ public class Main : MonoBehaviour {
                 Active_Blocks.Add(Next_Block);
                 Next_Block = new Block();
             }
+            if (Check_For_Boundaries())
+            {
+                Active_Blocks[Active_Blocks.Count - 1].move_right();
+            }
         }
-
         if (Input.GetKeyDown(KeyCode.RightArrow))
         {
             Active_Blocks[Active_Blocks.Count - 1].move_right();
@@ -55,11 +62,14 @@ public class Main : MonoBehaviour {
                 Active_Blocks.Add(Next_Block);
                 Next_Block = new Block();
             }
+            if (Check_For_Boundaries())
+            {
+                Active_Blocks[Active_Blocks.Count - 1].move_left();
+            }
         }
-
         if (Input.GetKeyDown(KeyCode.UpArrow))
         {
-            Debug.Log("Main.UP");
+           
             Active_Blocks[Active_Blocks.Count - 1].rotate_clockwise();
             no_room = Check_For_Room();
             if (no_room)
@@ -68,11 +78,14 @@ public class Main : MonoBehaviour {
                 Active_Blocks.Add(Next_Block);
                 Next_Block = new Block();
             }
+            if (Check_For_Boundaries())
+            {
+                Active_Blocks[Active_Blocks.Count - 1].rotate_anticlockwise();
+            }
         }
-
         if (Input.GetKeyDown(KeyCode.DownArrow))
         {
-            Debug.Log("Main.DOWN");
+      
             Active_Blocks[Active_Blocks.Count - 1].rotate_anticlockwise();
             no_room = Check_For_Room();
             if (no_room)
@@ -81,11 +94,13 @@ public class Main : MonoBehaviour {
                 Active_Blocks.Add(Next_Block);
                 Next_Block = new Block();
             }
+            if (Check_For_Boundaries())
+            {
+                Active_Blocks[Active_Blocks.Count - 1].rotate_clockwise();
+            }
 
         }
-
-        if (Time.time - last_drop > 0.1)
-
+        if (Time.time - last_drop > DropSpeed)
         {
             last_drop = Time.time;
             Active_Blocks[Active_Blocks.Count - 1].move_down();
@@ -100,7 +115,7 @@ public class Main : MonoBehaviour {
             {
                 for (int part_of_block = 0; part_of_block < Active_Blocks[Active_Blocks.Count - 1].position.Length; part_of_block++)
                 {
-                    if (Active_Blocks[Active_Blocks.Count - 1].position[part_of_block].y < -19)
+                    if (Active_Blocks[Active_Blocks.Count - 1].position[part_of_block].y < -Bottom_boundary)
                     {
                         Active_Blocks.Add(Next_Block);
                         Next_Block = new Block();
@@ -108,22 +123,62 @@ public class Main : MonoBehaviour {
                 }
             }
         }
-        display();
-
+        Check_Lines();
+        if (!Render_Switch)
+        {
+            display();
+        }
+        else { }//TODO;
     }
-    /*
+    
+
     public void Check_Lines()
     {
-
-        for(int row = -20; row < 0; row++)
+        List<Block> RowList =  new List<Block>();
+        for (int row = -Bottom_boundary; row < 0; row++)
         {
             foreach (Block active_block in Active_Blocks)
             {
-                    if (active_block.position.y == row)
+                for (int parts_of_bock = 0; parts_of_bock < number_parts_in_a_block; parts_of_bock++)
+                {
+                    if (active_block.position[parts_of_bock].y == row)
+                    {
+                        RowList.Add(active_block);
+                    }
+                }
 
+                if (RowList.Count > 5)//Right_boundary - Left_boundary)
+                {
+                    foreach (Block block_to_die in RowList)
+                    {
+                        for (int parts_of_block = 0; parts_of_block < number_parts_in_a_block; parts_of_block++)
+                        {
+                            if (block_to_die.position[parts_of_block].y == row)
+                            {
+                                block_to_die.position[parts_of_block] = new Vector2(0, -4);
+                            }
+                        }
+                    }
+                    foreach(Block active in Active_Blocks)
+                    {
+                        active.move_down();
+                    }
+                }
+                else { RowList.Clear(); }
             }
         }
-    }*/
+    }
+
+    public bool Check_For_Boundaries()
+    {
+        bool hitting_walls = false;
+        for (int parts_of_block = 0; parts_of_block < number_parts_in_a_block; parts_of_block++)
+        {
+            if (Active_Blocks[Active_Blocks.Count - 1].position[parts_of_block].x < Left_boundary) hitting_walls = true;
+            if (Active_Blocks[Active_Blocks.Count - 1].position[parts_of_block].x > Right_boundary) hitting_walls = true;
+        }
+        return hitting_walls;
+    }
 
     public bool Check_For_Room()
     {
@@ -150,23 +205,41 @@ public class Main : MonoBehaviour {
     public void display()
     {
         string to_text_box = "";
+        int[,] the_game_view = new int[13,30];
 
-        int[,] the_game_view = new int[40,40];
-        foreach(Block block_in_game in Active_Blocks)
+        for (int part_of_preview = 0; part_of_preview < number_parts_in_a_block; part_of_preview++)
         {
-            for(int part_of_block = 0; part_of_block < 4; part_of_block++)
+            int col = (int)Next_Block.position[part_of_preview].x +1;
+            int row = (int)Next_Block.position[part_of_preview].y + 29;
+            Debug.Log("col: " + col + "row: " + row);
+            the_game_view[col, row] = 1;
+        }
+
+        
+            foreach(Block block_in_game in Active_Blocks)
+        {
+            for(int part_of_block = 0; part_of_block < number_parts_in_a_block; part_of_block++)
             {
                 //Debug.Log(position_part_of_block.x.ToString() + "  " + position_part_of_block.y.ToString());
-
-                int column = 10 + (int)block_in_game.position[part_of_block].x;
-                int row = 32 + (int)block_in_game.position[part_of_block].y;
-                the_game_view[column, row] = 1;
+                Debug.Log("Step1");
+                int column = (int)block_in_game.position[part_of_block].x - Left_boundary;
+                int row = (int)block_in_game.position[part_of_block].y + Bottom_boundary +1;
+                if (row < 0)
+                {
+                    row = 29;
+                    column = 12;
                 }
+                Debug.Log("Step2");
+
+                Debug.Log("col: " + column + "row: " + row);
+
+                the_game_view[column, row] = 1;
+             }
         }
-        for (int line = 39; line >= 0; line--)
+        for (int line = 29; line >= 0; line--)
         {
             to_text_box = to_text_box + "|";
-            for (int column = 0; column < 21; column++)
+            for (int column = 0; column < 12; column++)
             {
                 if (the_game_view[column, line] == 1)
                 {
@@ -181,9 +254,4 @@ public class Main : MonoBehaviour {
         }
         text_box.text = to_text_box;
     }
-
-
-    //public void Block_inactive() { }
-    public void check_for_full_row(int row) { }
-    public void line_destroy_and_drop(int row_to_destroy) { }
 }

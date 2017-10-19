@@ -6,10 +6,6 @@ public class Block : MonoBehaviour {
     public enum Block_Shape : int { L = 1, J, I, O, S, Z, T };
     public enum Block_Orientation : int { ZERO = 0, NINTY = 1, ONEEIGHTY = 2, TWOSEVENTY = 3 };
 
-    int Left_boundary = -10;
-    int Right_boundary = 10;
-    int Bottom_boundary = 20;
-
     public Vector2[] position = new Vector2[4];
     public Block_Shape myshape;
     public Block_Orientation myorientation;
@@ -81,7 +77,7 @@ public class Block : MonoBehaviour {
         else
         {
             Vector2 pivot = position[0];
-            Debug.Log("pivot: " + pivot.ToString());
+            //Debug.Log("pivot: " + pivot.ToString());
             for (int part_of_block = 1; part_of_block < position.Length; part_of_block++)
             {
                 Vector2 direction_of_part = position[part_of_block] - pivot;
@@ -89,7 +85,7 @@ public class Block : MonoBehaviour {
                 rotated.x = direction_of_part.y;
                 rotated.y = -direction_of_part.x;
                 position[part_of_block] = rotated + pivot;
-                Debug.Log("originalpart: " + part_of_block.ToString());
+               // Debug.Log("originalpart: " + part_of_block.ToString());
             }
             /*if (myshape == Block_Shape.I)
             {
@@ -156,7 +152,7 @@ public class Block : MonoBehaviour {
         for (int part_of_block = 0; part_of_block < position.Length; part_of_block++)
         {
             temp_position[part_of_block] = position[part_of_block] + Vector2.left;
-            if ((temp_position[part_of_block].x > 10) || (temp_position[part_of_block].x < -10))
+           /* if ((temp_position[part_of_block].x > 10) || (temp_position[part_of_block].x < -10))
             {
                 Debug.Log("Side WAlls hit! L");
                 return;
@@ -165,7 +161,7 @@ public class Block : MonoBehaviour {
             {
                 Debug.Log("Side top or bot hit! L");
                 return;
-            }
+            }*/
         }
         position = temp_position;
     }
@@ -176,7 +172,7 @@ public class Block : MonoBehaviour {
         for (int part_of_block = 0; part_of_block < position.Length; part_of_block++)
         {
             temp_position[part_of_block] = position[part_of_block] + Vector2.right;
-            if ((temp_position[part_of_block].x > 10) || (temp_position[part_of_block].x < -10))
+          /*  if ((temp_position[part_of_block].x > 10) || (temp_position[part_of_block].x < -10))
             {
                 Debug.Log("Side WAlls hit! R");
                 return;
@@ -185,7 +181,7 @@ public class Block : MonoBehaviour {
             {
                 Debug.Log("Side top or bot hit! R");
                 return;
-            }
+            }*/
         }
         position = temp_position;
     }
@@ -196,8 +192,8 @@ public class Block : MonoBehaviour {
         for (int part_of_block = 0; part_of_block < 4; part_of_block++)
         {
             temp_position[part_of_block] = position[part_of_block] + Vector2.down;
-            if (temp_position[part_of_block].y < -20)
-            { return; }
+            /*if (temp_position[part_of_block].y < -20)
+            { return; }*/
         }
         position = temp_position;
     }
@@ -208,8 +204,6 @@ public class Block : MonoBehaviour {
         for (int part_of_block = 0; part_of_block < 4; part_of_block++)
         {
             temp_position[part_of_block] = position[part_of_block] + Vector2.up;
-            if (temp_position[part_of_block].y < -20)
-            { return; }
         }
         position = temp_position;
     }
