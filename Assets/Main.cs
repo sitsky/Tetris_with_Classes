@@ -110,10 +110,20 @@ public class Main : MonoBehaviour {
         }
         display();
 
-        Debug.Log("lastdrop: " + last_drop.ToString());
-        Debug.Log("  Time: " + Time.time);
-        Debug.Log("ActiveY: " + Active_Blocks.Count.ToString());
     }
+    /*
+    public void Check_Lines()
+    {
+
+        for(int row = -20; row < 0; row++)
+        {
+            foreach (Block active_block in Active_Blocks)
+            {
+                    if (active_block.position.y == row)
+
+            }
+        }
+    }*/
 
     public bool Check_For_Room()
     {
@@ -136,8 +146,6 @@ public class Main : MonoBehaviour {
         }
         return occupado;
     }
-
-
 
     public void display()
     {
@@ -175,7 +183,7 @@ public class Main : MonoBehaviour {
     }
 
 
-    public void Block_inactive() { }
+    //public void Block_inactive() { }
     public void check_for_full_row(int row) { }
     public void line_destroy_and_drop(int row_to_destroy) { }
 }
