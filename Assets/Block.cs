@@ -6,6 +6,10 @@ public class Block : MonoBehaviour {
     public enum Block_Shape : int { L = 1, J, I, O, S, Z, T };
     public enum Block_Orientation : int { ZERO = 0, NINTY = 1, ONEEIGHTY = 2, TWOSEVENTY = 3 };
 
+    int Left_boundary = -10;
+    int Right_boundary = 10;
+    int Bottom_boundary = 20;
+
     public Vector2[] position = new Vector2[4];
     public Block_Shape myshape;
     public Block_Orientation myorientation;
@@ -13,7 +17,7 @@ public class Block : MonoBehaviour {
     public Block()
     {
         myorientation = Block_Orientation.ZERO;
-        myshape = (Block_Shape)Random.Range(1, 7);
+        myshape = (Block_Shape)Random.Range(1, (int)Block_Shape.T);
         position = create_Block(myshape);
     }
 
@@ -73,12 +77,12 @@ public class Block : MonoBehaviour {
 
     public void rotate_clockwise()
     {
-        if (myshape == Block_Shape.O) { return; }
+        if (myshape == Block_Shape.O) return; 
         else
         {
             Vector2 pivot = position[0];
             Debug.Log("pivot: " + pivot.ToString());
-            for (int part_of_block = 1; part_of_block < 4; part_of_block++)
+            for (int part_of_block = 1; part_of_block < position.Length; part_of_block++)
             {
                 Vector2 direction_of_part = position[part_of_block] - pivot;
                 Vector2 rotated;
@@ -115,7 +119,7 @@ public class Block : MonoBehaviour {
         else
         {
             Vector2 pivot = position[0];
-            for (int part_of_block = 1; part_of_block < 4; part_of_block++)
+            for (int part_of_block = 1; part_of_block < position.Length; part_of_block++)
             {
                 Vector2 direction_of_part = position[part_of_block] - pivot;
                 Vector2 rotated;
@@ -149,7 +153,7 @@ public class Block : MonoBehaviour {
     public void move_left()
     {
         Vector2[] temp_position = new Vector2[4];
-        for (int part_of_block = 0; part_of_block < 4; part_of_block++)
+        for (int part_of_block = 0; part_of_block < position.Length; part_of_block++)
         {
             temp_position[part_of_block] = position[part_of_block] + Vector2.left;
             if ((temp_position[part_of_block].x > 10) || (temp_position[part_of_block].x < -10))
@@ -169,7 +173,7 @@ public class Block : MonoBehaviour {
     public void move_right()
     {
         Vector2[] temp_position = new Vector2[4];
-        for (int part_of_block = 0; part_of_block < 4; part_of_block++)
+        for (int part_of_block = 0; part_of_block < position.Length; part_of_block++)
         {
             temp_position[part_of_block] = position[part_of_block] + Vector2.right;
             if ((temp_position[part_of_block].x > 10) || (temp_position[part_of_block].x < -10))
@@ -191,11 +195,22 @@ public class Block : MonoBehaviour {
         Vector2[] temp_position = new Vector2[4];
         for (int part_of_block = 0; part_of_block < 4; part_of_block++)
         {
-            temp_position[part_of_block] = position[part_of_block] + ((0.1f) * Vector2.down);
+            temp_position[part_of_block] = position[part_of_block] + Vector2.down;
             if (temp_position[part_of_block].y < -20)
             { return; }
         }
         position = temp_position;
     }
 
+    public void move_up()
+    {
+        Vector2[] temp_position = new Vector2[4];
+        for (int part_of_block = 0; part_of_block < 4; part_of_block++)
+        {
+            temp_position[part_of_block] = position[part_of_block] + Vector2.up;
+            if (temp_position[part_of_block].y < -20)
+            { return; }
+        }
+        position = temp_position;
+    }
 }

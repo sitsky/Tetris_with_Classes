@@ -6,13 +6,18 @@ using System.Collections.Generic;
 
 public class Main : MonoBehaviour {
 
+    int number_parts_in_a_block;
+
     public Block Next_Block;
     List<Block> Active_Blocks = new List<Block>();
 
+
+    float last_drop;
     Text text_box;
 
     // Use this for initialization
     void Start () {
+        last_drop = 0;
 
         text_box = GetComponent<Text>();
 
@@ -20,50 +25,119 @@ public class Main : MonoBehaviour {
         Active_Blocks.Add(Next_Block);
         Next_Block = new Block();
         display();
+        number_parts_in_a_block = Next_Block.position.Length;
     }
 
     // Update is called once per frame
     void Update() {
 
+        bool no_room = false;
+
         if (Input.GetKeyDown(KeyCode.LeftArrow))
         {
             Active_Blocks[Active_Blocks.Count - 1].move_left();
+            no_room = Check_For_Room();
+            if (no_room)
+            {
+                Active_Blocks[Active_Blocks.Count - 1].move_right();
+                Active_Blocks.Add(Next_Block);
+                Next_Block = new Block();
+            }
         }
 
         if (Input.GetKeyDown(KeyCode.RightArrow))
         {
-            Debug.Log("Main.DOWNR");
             Active_Blocks[Active_Blocks.Count - 1].move_right();
+            no_room = Check_For_Room();
+            if (no_room)
+            {
+                Active_Blocks[Active_Blocks.Count - 1].move_left();
+                Active_Blocks.Add(Next_Block);
+                Next_Block = new Block();
+            }
         }
 
         if (Input.GetKeyDown(KeyCode.UpArrow))
         {
             Debug.Log("Main.UP");
             Active_Blocks[Active_Blocks.Count - 1].rotate_clockwise();
+            no_room = Check_For_Room();
+            if (no_room)
+            {
+                Active_Blocks[Active_Blocks.Count - 1].rotate_anticlockwise();
+                Active_Blocks.Add(Next_Block);
+                Next_Block = new Block();
+            }
         }
 
         if (Input.GetKeyDown(KeyCode.DownArrow))
         {
             Debug.Log("Main.DOWN");
             Active_Blocks[Active_Blocks.Count - 1].rotate_anticlockwise();
-        }
-
-        Active_Blocks[Active_Blocks.Count - 1].move_down();
-        
-
-        //Debug.Log(Active_Blocks[Active_Blocks.Count - 1].position[0].ToString());
-        
-        for (int part_of_block = 0; part_of_block < Active_Blocks[Active_Blocks.Count - 1].position.Length; part_of_block++)
-        {
-            if (Active_Blocks[Active_Blocks.Count - 1].position[part_of_block].y < -19)
+            no_room = Check_For_Room();
+            if (no_room)
             {
+                Active_Blocks[Active_Blocks.Count - 1].rotate_clockwise();
                 Active_Blocks.Add(Next_Block);
                 Next_Block = new Block();
             }
 
         }
+
+        if (Time.time - last_drop > 0.1)
+
+        {
+            last_drop = Time.time;
+            Active_Blocks[Active_Blocks.Count - 1].move_down();
+            no_room = Check_For_Room();
+            if (no_room)
+            {
+                Active_Blocks[Active_Blocks.Count - 1].move_up();
+                Active_Blocks.Add(Next_Block);
+                Next_Block = new Block();
+            }
+            else
+            {
+                for (int part_of_block = 0; part_of_block < Active_Blocks[Active_Blocks.Count - 1].position.Length; part_of_block++)
+                {
+                    if (Active_Blocks[Active_Blocks.Count - 1].position[part_of_block].y < -19)
+                    {
+                        Active_Blocks.Add(Next_Block);
+                        Next_Block = new Block();
+                    }
+                }
+            }
+        }
         display();
+
+        Debug.Log("lastdrop: " + last_drop.ToString());
+        Debug.Log("  Time: " + Time.time);
+        Debug.Log("ActiveY: " + Active_Blocks.Count.ToString());
     }
+
+    public bool Check_For_Room()
+    {
+        bool occupado = false;
+        if (Active_Blocks.Count > 1)
+        {
+            for (int active_block = 0; active_block < (Active_Blocks.Count - 1); active_block++)
+            {
+                for (int each_part = 0; each_part < number_parts_in_a_block; each_part++)
+                {
+                    for (int parts_of_active_blocks = 0; parts_of_active_blocks < number_parts_in_a_block; parts_of_active_blocks++)
+                    {
+                        if (Active_Blocks[Active_Blocks.Count - 1].position[each_part].Equals(Active_Blocks[active_block].position[parts_of_active_blocks]))
+                        {
+                            occupado = true;
+                        }
+                    }
+                }
+            }
+        }
+        return occupado;
+    }
+
+
 
     public void display()
     {
