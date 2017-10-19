@@ -13,8 +13,8 @@ public class Block : MonoBehaviour {
     public Block()
     {
         myorientation = Block_Orientation.ZERO;
-        myshape = Block_Shape.L; //(Block_Shape)Random.Range(1, 7);
-        position = create_Block(Block_Shape.L);
+        myshape = (Block_Shape)Random.Range(1, 7);
+        position = create_Block(myshape);
     }
 
 
@@ -30,14 +30,14 @@ public class Block : MonoBehaviour {
                 block_chosen[3] = new Vector2(1, -2);
                 break;
             case Block_Shape.J:
-                block_chosen[0] = new Vector2(0, 0);
+                block_chosen[2] = new Vector2(0, 0);
                 block_chosen[1] = new Vector2(0, -1);
-                block_chosen[2] = new Vector2(0, -2);
+                block_chosen[0] = new Vector2(0, -2);
                 block_chosen[3] = new Vector2(-1, -2);
                 break;
             case Block_Shape.I:
-                block_chosen[0] = new Vector2(0, 0);
-                block_chosen[1] = new Vector2(0, -1);
+                block_chosen[1] = new Vector2(0, 0);
+                block_chosen[0] = new Vector2(0, -1);
                 block_chosen[2] = new Vector2(0, -2);
                 block_chosen[3] = new Vector2(0, -3);
                 break;
@@ -49,8 +49,8 @@ public class Block : MonoBehaviour {
                 break;
             case Block_Shape.S:
                 block_chosen[0] = new Vector2(0, 0);
-                block_chosen[1] = new Vector2(0, 1);
-                block_chosen[2] = new Vector2(1, 0);
+                block_chosen[1] = new Vector2(1, 0);
+                block_chosen[2] = new Vector2(0, -1);
                 block_chosen[3] = new Vector2(-1, -1);
                 break;
             case Block_Shape.T:
@@ -61,14 +61,89 @@ public class Block : MonoBehaviour {
                 break;
             case Block_Shape.Z:
                 block_chosen[0] = new Vector2(0, 0);
-                block_chosen[1] = new Vector2(0, 1);
-                block_chosen[2] = new Vector2(0, -1);
-                block_chosen[3] = new Vector2(-1, -1);
+                block_chosen[1] = new Vector2(0, -1);
+                block_chosen[2] = new Vector2(-1, 0);
+                block_chosen[3] = new Vector2(1, -1);
                 break;
             default:
                 break;
         }
         return block_chosen;
+    }
+
+    public void rotate_clockwise()
+    {
+        if (myshape == Block_Shape.O) { return; }
+        else
+        {
+            Vector2 pivot = position[0];
+            Debug.Log("pivot: " + pivot.ToString());
+            for (int part_of_block = 1; part_of_block < 4; part_of_block++)
+            {
+                Vector2 direction_of_part = position[part_of_block] - pivot;
+                Vector2 rotated;
+                rotated.x = direction_of_part.y;
+                rotated.y = -direction_of_part.x;
+                position[part_of_block] = rotated + pivot;
+                Debug.Log("originalpart: " + part_of_block.ToString());
+            }
+            /*if (myshape == Block_Shape.I)
+            {
+                if (myorientation == Block_Orientation.NINTY)
+                {
+                    for (int part_of_block = 0; part_of_block < 4; part_of_block++)
+                    {
+                        position[part_of_block] += Vector2.left;
+                    }
+                }
+                else if (myorientation == Block_Orientation.TWOSEVENTY)
+                {
+                    for (int part_of_block = 0; part_of_block < 4; part_of_block++)
+                    {
+                        position[part_of_block] += Vector2.right;
+                    }
+                }
+            }*/
+        }
+        myorientation++;
+        if (myorientation > Block_Orientation.TWOSEVENTY) myorientation = Block_Orientation.ZERO;
+    }
+
+    public void rotate_anticlockwise()
+    {
+        if (myshape == Block_Shape.O) return;
+        else
+        {
+            Vector2 pivot = position[0];
+            for (int part_of_block = 1; part_of_block < 4; part_of_block++)
+            {
+                Vector2 direction_of_part = position[part_of_block] - pivot;
+                Vector2 rotated;
+                rotated.x = -direction_of_part.y;
+                rotated.y = direction_of_part.x;
+                position[part_of_block] = rotated + pivot;
+            }
+            /*if (myshape == Block_Shape.I)
+            {
+                if (myorientation == Block_Orientation.NINTY)
+                {
+                    for (int part_of_block = 0; part_of_block < 4; part_of_block++)
+                    {
+                        position[part_of_block] += Vector2.left;
+                    }
+                }
+                else if (myorientation == Block_Orientation.TWOSEVENTY)
+                {
+                    for (int part_of_block = 0; part_of_block < 4; part_of_block++)
+                    {
+                        position[part_of_block] += Vector2.right;
+                    }
+                }
+            }*/
+        }
+
+        myorientation--;
+        if (myorientation > Block_Orientation.TWOSEVENTY) myorientation = Block_Orientation.ZERO;
     }
 
     public void move_left()
@@ -90,7 +165,7 @@ public class Block : MonoBehaviour {
         }
         position = temp_position;
     }
-    
+
     public void move_right()
     {
         Vector2[] temp_position = new Vector2[4];
@@ -110,71 +185,17 @@ public class Block : MonoBehaviour {
         }
         position = temp_position;
     }
-    
+
     public void move_down()
     {
         Vector2[] temp_position = new Vector2[4];
         for (int part_of_block = 0; part_of_block < 4; part_of_block++)
         {
-            temp_position[part_of_block] = position[part_of_block] + Vector2.down;
-            if (temp_position[part_of_block].y < -19) 
+            temp_position[part_of_block] = position[part_of_block] + ((0.1f) * Vector2.down);
+            if (temp_position[part_of_block].y < -20)
             { return; }
         }
         position = temp_position;
     }
 
-    public void rotate_clockwise()
-    {
-        if (myshape == Block_Shape.O) { return; }
-        else
-        {
-            Vector2 pivot = position[0];
-            Debug.Log("pivot: " + pivot.ToString());
-            for (int part_of_block = 1; part_of_block < 4; part_of_block++)
-            {
-                Vector2 direction_of_part = position[part_of_block] - pivot;
-                Vector2 rotated;
-                rotated.x = direction_of_part.y;
-                rotated.y = -direction_of_part.x;
-                position[part_of_block] = rotated + pivot;
-                Debug.Log("originalpart: " + part_of_block.ToString());
-            }
-            if ((myorientation == Block_Orientation.NINTY) || (myorientation == Block_Orientation.TWOSEVENTY))
-            {
-                for (int part_of_block = 0; part_of_block < 4; part_of_block++)
-                {
-                    position[part_of_block] += Vector2.left;
-                }
-            }
-        }
-        myorientation++;
-        if (myorientation > Block_Orientation.TWOSEVENTY) myorientation = Block_Orientation.ZERO;
-    }
-
-    public void rotate_anticlockwise()
-    {
-        if (myshape == Block_Shape.O) return;
-        else
-        {
-            Vector2 pivot = position[0];
-            for (int part_of_block = 1; part_of_block < 4; part_of_block++)
-            {
-                Vector2 direction_of_part = position[part_of_block] - pivot;
-                Vector2 rotated;
-                rotated.x = -direction_of_part.y;
-                rotated.y = direction_of_part.x;
-                position[part_of_block] = rotated + pivot;
-            }
-            if ((myorientation == Block_Orientation.NINTY) || (myorientation == Block_Orientation.TWOSEVENTY))
-            {
-                for (int part_of_block = 0; part_of_block < 4; part_of_block++)
-                {
-                    position[part_of_block] += Vector2.left;
-                }
-            }
-        }
-
-        myorientation--;
-        if (myorientation > Block_Orientation.TWOSEVENTY) myorientation = Block_Orientation.ZERO;
-    }
 }

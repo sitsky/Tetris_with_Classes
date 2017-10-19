@@ -48,19 +48,17 @@ public class Main : MonoBehaviour {
             Active_Blocks[Active_Blocks.Count - 1].rotate_anticlockwise();
         }
 
-        if (Active_Blocks.Count < 2)
-        {
-            Active_Blocks[Active_Blocks.Count - 1].move_down();
-        }
+        Active_Blocks[Active_Blocks.Count - 1].move_down();
+        
 
         //Debug.Log(Active_Blocks[Active_Blocks.Count - 1].position[0].ToString());
         
         for (int part_of_block = 0; part_of_block < Active_Blocks[Active_Blocks.Count - 1].position.Length; part_of_block++)
         {
-            if (Active_Blocks[Active_Blocks.Count - 1].position[part_of_block].y < -12)
+            if (Active_Blocks[Active_Blocks.Count - 1].position[part_of_block].y < -19)
             {
                 Active_Blocks.Add(Next_Block);
-                //Next_Block = new Block();
+                Next_Block = new Block();
             }
 
         }
