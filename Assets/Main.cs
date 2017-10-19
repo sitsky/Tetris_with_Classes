@@ -32,6 +32,7 @@ public class Main : MonoBehaviour {
 
         if (Input.GetKeyDown(KeyCode.RightArrow))
         {
+            Debug.Log("Main.DOWNR");
             Active_Blocks[Active_Blocks.Count - 1].move_right();
         }
 
@@ -43,6 +44,7 @@ public class Main : MonoBehaviour {
 
         if (Input.GetKeyDown(KeyCode.DownArrow))
         {
+            Debug.Log("Main.DOWN");
             Active_Blocks[Active_Blocks.Count - 1].rotate_anticlockwise();
         }
 
@@ -55,7 +57,7 @@ public class Main : MonoBehaviour {
         
         for (int part_of_block = 0; part_of_block < Active_Blocks[Active_Blocks.Count - 1].position.Length; part_of_block++)
         {
-            if (Active_Blocks[Active_Blocks.Count - 1].position[part_of_block].y < -8)
+            if (Active_Blocks[Active_Blocks.Count - 1].position[part_of_block].y < -12)
             {
                 Active_Blocks.Add(Next_Block);
                 //Next_Block = new Block();
@@ -69,21 +71,22 @@ public class Main : MonoBehaviour {
     {
         string to_text_box = "";
 
-        int[,] the_game_view = new int[20,40];
+        int[,] the_game_view = new int[40,40];
         foreach(Block block_in_game in Active_Blocks)
         {
             for(int part_of_block = 0; part_of_block < 4; part_of_block++)
             {
                 //Debug.Log(position_part_of_block.x.ToString() + "  " + position_part_of_block.y.ToString());
 
-                int column = 5 + (int)block_in_game.position[part_of_block].x;
+                int column = 10 + (int)block_in_game.position[part_of_block].x;
                 int row = 32 + (int)block_in_game.position[part_of_block].y;
                 the_game_view[column, row] = 1;
                 }
         }
         for (int line = 39; line >= 0; line--)
         {
-            for (int column = 0; column < 20; column++)
+            to_text_box = to_text_box + "|";
+            for (int column = 0; column < 21; column++)
             {
                 if (the_game_view[column, line] == 1)
                 {
@@ -94,7 +97,7 @@ public class Main : MonoBehaviour {
                     to_text_box = to_text_box + " ";
                 }
             }
-            to_text_box = to_text_box + "\n";
+            to_text_box = to_text_box + "|\n";
         }
         text_box.text = to_text_box;
     }
