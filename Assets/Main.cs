@@ -17,14 +17,9 @@ public class Main : MonoBehaviour {
         text_box = GetComponent<Text>();
 
         Next_Block = new Block();
-        
         Active_Blocks.Add(Next_Block);
-        Debug.Log("Next: " + Next_Block.myShape);
-        Debug.Log(Active_Blocks[Active_Blocks.Count - 1].myShape);
-
-        text_box.text = Active_Blocks[Active_Blocks.Count - 1].myShape;
         Next_Block = new Block();
-        
+        display();
     }
 
     // Update is called once per frame
@@ -54,16 +49,23 @@ public class Main : MonoBehaviour {
 
         if (Active_Blocks[Active_Blocks.Count - 1].position.y < -100)
         {
-            Debug.Log(Active_Blocks[Active_Blocks.Count - 1].position.y.ToString());
             Active_Blocks.Add(Next_Block);
             Next_Block = new Block();
-            Debug.Log(Active_Blocks[Active_Blocks.Count - 1].position.y.ToString());
         }
-        text_box.text = Active_Blocks[Active_Blocks.Count - 1].myShape;
 
-        //this needs to change
-        text_box.transform.position = Active_Blocks[Active_Blocks.Count - 1].position; 
+        display();
     }
+
+    public void display()
+    {
+        string the_game_view = "";
+        foreach(Block block_in_game in Active_Blocks)
+        {
+            the_game_view = block_in_game.myShape + "\n   \n" + the_game_view;
+        }
+        text_box.text = the_game_view;
+    }
+
 
     public void Block_inactive() { }
     public void check_for_full_row(int row) { }

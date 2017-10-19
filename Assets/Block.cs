@@ -20,25 +20,25 @@ public class Block : MonoBehaviour {
         switch(make_shape)
         {
             case Block_Shape.L:
-                block_chosen = "X\nX\nXX ";
+                block_chosen = " X \n X \n XX ";
                 break;
             case Block_Shape.J:
-                block_chosen = " X\n X\n XX ";
+                block_chosen = " X \n X \n XX ";
                 break;
             case Block_Shape.I:
-                block_chosen = "X\nX\nX\nX";
+                block_chosen = " X \n X \n X \n X ";
                 break;
             case Block_Shape.O:
-                block_chosen = "XX\nXX";
+                block_chosen = " XX\n XX";
                 break;
             case Block_Shape.S:
-                block_chosen = " XX\nXX";
+                block_chosen = " XX\nXX ";
                 break;
             case Block_Shape.T:
                 block_chosen = "XXX\n X ";
                 break;
             case Block_Shape.Z:
-                block_chosen = "XX\n XX";
+                block_chosen = "XX \n XX";
                 break;
             default: block_chosen = "Fail!";
                 break;
