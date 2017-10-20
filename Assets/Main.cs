@@ -6,13 +6,15 @@ using System.Collections.Generic;
 
 public class Main : MonoBehaviour {
 
+    //Play area
     int Left_boundary = -5;
     int Right_boundary = 6;
     int Bottom_boundary = 20;
 
-    public Block Next_Block;
-    List<Block> Active_Blocks = new List<Block>();
-    int number_parts_in_a_block;
+    public Shape Next_Shape;
+    public Shape Current_Shape;
+    List<Shape> Active_Shapes = new List<Shape>();
+    int Blocks_in_Shape;
 
     float last_drop;
     float DropSpeed = 0.5f;
@@ -27,144 +29,160 @@ public class Main : MonoBehaviour {
 
         text_box = GetComponent<Text>();
 
-        Next_Block = new Block();
-        Active_Blocks.Add(Next_Block);
-        Next_Block = new Block();
+        Next_Shape = new Shape();
+        Active_Shapes.Add(Next_Shape);
+        Next_Shape = new Shape();
         display();
-        number_parts_in_a_block = Next_Block.position.Length;
+        
     }
 
     // Update is called once per frame
     void Update() {
+        Current_Shape = Active_Shapes[Active_Shapes.Count -1];
+        Blocks_in_Shape = Current_Shape.Block_positions.Length;
         bool no_room = false;
+
         if (Input.GetKeyDown(KeyCode.LeftArrow))
         {
-            Active_Blocks[Active_Blocks.Count - 1].move_left();
+            Current_Shape.move_left();
             no_room = Check_For_Room();
             if (no_room)
             {
-                Active_Blocks[Active_Blocks.Count - 1].move_right();
-                Active_Blocks.Add(Next_Block);
-                Next_Block = new Block();
+                Current_Shape.move_right();
+                Active_Shapes.Add(Next_Shape);
+                Next_Shape = new Shape();
             }
             if (Check_For_Boundaries())
             {
-                Active_Blocks[Active_Blocks.Count - 1].move_right();
+                Current_Shape.move_right();
             }
         }
         if (Input.GetKeyDown(KeyCode.RightArrow))
         {
-            Active_Blocks[Active_Blocks.Count - 1].move_right();
+            Current_Shape.move_right();
             no_room = Check_For_Room();
             if (no_room)
             {
-                Active_Blocks[Active_Blocks.Count - 1].move_left();
-                Active_Blocks.Add(Next_Block);
-                Next_Block = new Block();
+                Current_Shape.move_left();
+                Active_Shapes.Add(Next_Shape);
+                Next_Shape = new Shape();
             }
             if (Check_For_Boundaries())
             {
-                Active_Blocks[Active_Blocks.Count - 1].move_left();
+                Current_Shape.move_left();
             }
         }
         if (Input.GetKeyDown(KeyCode.UpArrow))
         {
            
-            Active_Blocks[Active_Blocks.Count - 1].rotate_clockwise();
+            Current_Shape.rotate_clockwise();
             no_room = Check_For_Room();
             if (no_room)
             {
-                Active_Blocks[Active_Blocks.Count - 1].rotate_anticlockwise();
-                Active_Blocks.Add(Next_Block);
-                Next_Block = new Block();
+                Current_Shape.rotate_anticlockwise();
+                Active_Shapes.Add(Next_Shape);
+                Next_Shape = new Shape();
             }
             if (Check_For_Boundaries())
             {
-                Active_Blocks[Active_Blocks.Count - 1].rotate_anticlockwise();
+                Current_Shape.rotate_anticlockwise();
             }
         }
         if (Input.GetKeyDown(KeyCode.DownArrow))
         {
       
-            Active_Blocks[Active_Blocks.Count - 1].rotate_anticlockwise();
+            Current_Shape.rotate_anticlockwise();
             no_room = Check_For_Room();
             if (no_room)
             {
-                Active_Blocks[Active_Blocks.Count - 1].rotate_clockwise();
-                Active_Blocks.Add(Next_Block);
-                Next_Block = new Block();
+                Current_Shape.rotate_clockwise();
+                Active_Shapes.Add(Next_Shape);
+                Next_Shape = new Shape();
             }
             if (Check_For_Boundaries())
             {
-                Active_Blocks[Active_Blocks.Count - 1].rotate_clockwise();
+                Current_Shape.rotate_clockwise();
             }
 
         }
         if (Time.time - last_drop > DropSpeed)
         {
             last_drop = Time.time;
-            Active_Blocks[Active_Blocks.Count - 1].move_down();
+            Current_Shape.move_down();
             no_room = Check_For_Room();
             if (no_room)
             {
-                Active_Blocks[Active_Blocks.Count - 1].move_up();
-                Active_Blocks.Add(Next_Block);
-                Next_Block = new Block();
+                Current_Shape.move_up();
+                Active_Shapes.Add(Next_Shape);
+                Next_Shape = new Shape();
             }
             else
             {
-                for (int part_of_block = 0; part_of_block < Active_Blocks[Active_Blocks.Count - 1].position.Length; part_of_block++)
+                for (int part_of_block = 0; part_of_block < Blocks_in_Shape; part_of_block++)
                 {
-                    if (Active_Blocks[Active_Blocks.Count - 1].position[part_of_block].y < -Bottom_boundary)
+                    if (Current_Shape.Block_positions[part_of_block].position.y < -Bottom_boundary)
                     {
-                        Active_Blocks.Add(Next_Block);
-                        Next_Block = new Block();
+                        Active_Shapes.Add(Next_Shape);
+                        Next_Shape = new Shape();
                     }
                 }
             }
+            Check_Lines();
         }
-        Check_Lines();
+
         if (!Render_Switch)
         {
             display();
         }
         else { }//TODO;
     }
-    
+
 
     public void Check_Lines()
     {
-        List<Block> RowList =  new List<Block>();
-        for (int row = -Bottom_boundary; row < 0; row++)
+        int fullrow;
+        for (int row = 0; row < Bottom_boundary; row++)
         {
-            foreach (Block active_block in Active_Blocks)
+            fullrow = 0;
+            foreach (Shape active_shape in Active_Shapes)
             {
-                for (int parts_of_bock = 0; parts_of_bock < number_parts_in_a_block; parts_of_bock++)
+                foreach (Block part_of_shape in active_shape.Block_positions)
                 {
-                    if (active_block.position[parts_of_bock].y == row)
+                    if (part_of_shape.position.y == (row - Bottom_boundary))
                     {
-                        RowList.Add(active_block);
+                        Debug.Log("Row: " + row.ToString() + " Y: " + part_of_shape.position.y.ToString());
+                        part_of_shape.stay_alive = false;
+                        fullrow++;
                     }
                 }
-
-                if (RowList.Count > 5)//Right_boundary - Left_boundary)
+                if (fullrow > 5) //FullRow space 
                 {
-                    foreach (Block block_to_die in RowList)
+                    for (int to_die_shape = 0; to_die_shape < Active_Shapes.Count; to_die_shape++)
                     {
-                        for (int parts_of_block = 0; parts_of_block < number_parts_in_a_block; parts_of_block++)
+                        for (int to_die_block =0; to_die_block < Blocks_in_Shape; to_die_block++)
                         {
-                            if (block_to_die.position[parts_of_block].y == row)
+                            if(!(Active_Shapes[to_die_shape].Block_positions[to_die_block].stay_alive))
                             {
-                                block_to_die.position[parts_of_block] = new Vector2(0, -4);
+                                Debug.Log("Pieces dying: ");
+                                Active_Shapes[to_die_shape].Block_positions[to_die_block].position = new Vector2(5,5);
                             }
                         }
                     }
-                    foreach(Block active in Active_Blocks)
-                    {
-                        active.move_down();
-                    }
                 }
-                else { RowList.Clear(); }
+                else
+                {
+                    for (int to_survive_shape = 0; to_survive_shape < Active_Shapes.Count; to_survive_shape++)
+                    {
+                        for (int to_survive_block = 0; to_survive_block < Blocks_in_Shape; to_survive_block++)
+                        {
+                            if (!(Active_Shapes[to_survive_shape].Block_positions[to_survive_block].stay_alive))
+                            {
+                                Active_Shapes[to_survive_shape].Block_positions[to_survive_block].stay_alive = true;
+                            }
+                        }
+                    }
+
+                }
             }
         }
     }
@@ -172,34 +190,34 @@ public class Main : MonoBehaviour {
     public bool Check_For_Boundaries()
     {
         bool hitting_walls = false;
-        for (int parts_of_block = 0; parts_of_block < number_parts_in_a_block; parts_of_block++)
+        for (int parts_of_shape = 0; parts_of_shape < Blocks_in_Shape; parts_of_shape++)
         {
-            if (Active_Blocks[Active_Blocks.Count - 1].position[parts_of_block].x < Left_boundary) hitting_walls = true;
-            if (Active_Blocks[Active_Blocks.Count - 1].position[parts_of_block].x > Right_boundary) hitting_walls = true;
+            if (Current_Shape.Block_positions[parts_of_shape].position.x < Left_boundary) hitting_walls = true;
+            if (Current_Shape.Block_positions[parts_of_shape].position.x > Right_boundary) hitting_walls = true;
         }
         return hitting_walls;
     }
 
     public bool Check_For_Room()
     {
-        bool occupado = false;
-        if (Active_Blocks.Count > 1)
+        if (Active_Shapes.Count > 1)
         {
-            for (int active_block = 0; active_block < (Active_Blocks.Count - 1); active_block++)
+            foreach (Block check_empty_space in Current_Shape.Block_positions)
             {
-                for (int each_part = 0; each_part < number_parts_in_a_block; each_part++)
+                foreach (Shape active_shape in Active_Shapes)
                 {
-                    for (int parts_of_active_blocks = 0; parts_of_active_blocks < number_parts_in_a_block; parts_of_active_blocks++)
+                    foreach (Block occupied_space in active_shape.Block_positions)
                     {
-                        if (Active_Blocks[Active_Blocks.Count - 1].position[each_part].Equals(Active_Blocks[active_block].position[parts_of_active_blocks]))
+                        if (check_empty_space.position.Equals(occupied_space.position))
                         {
-                            occupado = true;
+                            return true;
                         }
                     }
                 }
+
             }
         }
-        return occupado;
+        return false;
     }
 
     public void display()
@@ -207,32 +225,23 @@ public class Main : MonoBehaviour {
         string to_text_box = "";
         int[,] the_game_view = new int[13,30];
 
-        for (int part_of_preview = 0; part_of_preview < number_parts_in_a_block; part_of_preview++)
+        for (int part_of_preview = 0; part_of_preview < Blocks_in_Shape; part_of_preview++)
         {
-            int col = (int)Next_Block.position[part_of_preview].x +1;
-            int row = (int)Next_Block.position[part_of_preview].y + 29;
-            Debug.Log("col: " + col + "row: " + row);
+            int col = (int)Next_Shape.Block_positions[part_of_preview].position.x +1; //rendering +1 move
+            int row = (int)Next_Shape.Block_positions[part_of_preview].position.y + 29; //rendering +29 move
             the_game_view[col, row] = 1;
-        }
-
-        
-            foreach(Block block_in_game in Active_Blocks)
+        }      
+        foreach(Shape shape_in_game in Active_Shapes)
         {
-            for(int part_of_block = 0; part_of_block < number_parts_in_a_block; part_of_block++)
+            for(int part_of_shape = 0; part_of_shape < Blocks_in_Shape; part_of_shape++)
             {
-                //Debug.Log(position_part_of_block.x.ToString() + "  " + position_part_of_block.y.ToString());
-                Debug.Log("Step1");
-                int column = (int)block_in_game.position[part_of_block].x - Left_boundary;
-                int row = (int)block_in_game.position[part_of_block].y + Bottom_boundary +1;
+                int column = (int)shape_in_game.Block_positions[part_of_shape].position.x - Left_boundary;
+                int row = (int)shape_in_game.Block_positions[part_of_shape].position.y + Bottom_boundary +1;
                 if (row < 0)
                 {
                     row = 29;
                     column = 12;
                 }
-                Debug.Log("Step2");
-
-                Debug.Log("col: " + column + "row: " + row);
-
                 the_game_view[column, row] = 1;
              }
         }
