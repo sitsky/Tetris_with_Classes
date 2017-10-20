@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using System.Collections;
 using UnityEditor;
 using System.Collections.Generic;
+using UnityEngine.Networking;
 
 public class Main : MonoBehaviour {
 
@@ -31,7 +32,7 @@ public class Main : MonoBehaviour {
 
 <<<<<<< HEAD
         Current_Shape = new Shape();
-        Blocks_in_Shape = Current_Shape.Block_positions.Length;
+        Blocks_in_Shape = Current_Shape.shape_parts.Length;
         Active_Shapes.Add(Current_Shape);
 =======
 >>>>>>> parent of 3f7420f... Logic fixed :)
@@ -47,6 +48,8 @@ public class Main : MonoBehaviour {
         Current_Shape = Active_Shapes[Active_Shapes.Count -1];
         Blocks_in_Shape = Current_Shape.Block_positions.Length;
         bool no_room = false;
+
+
 
         if (Input.GetKeyDown(KeyCode.LeftArrow))
         {
@@ -152,7 +155,7 @@ public class Main : MonoBehaviour {
             fullrow = 0;
             foreach (Shape active_shape in Active_Shapes)
             {
-                foreach (Block part_of_shape in active_shape.Block_positions)
+                foreach (Block part_of_shape in active_shape.shape_parts)
                 {
                     if (part_of_shape.position.y == (row - Bottom_boundary))
                     {
@@ -170,25 +173,21 @@ public class Main : MonoBehaviour {
                 {
                     for (int to_die_block = 0; to_die_block < Blocks_in_Shape; to_die_block++)
                     {
-                        if (!(Active_Shapes[to_die_shape].Block_positions[to_die_block].stay_alive))
+                        if (!(Active_Shapes[to_die_shape].shape_parts[to_die_block].stay_alive))
                         {
-                            Active_Shapes[to_die_shape].Block_positions[to_die_block].position = new Vector2(5, 8);
+                            Active_Shapes[to_die_shape].shape_parts[to_die_block].position = new Vector2(5, 8);
                         }
                     }
                 }
                 foreach (Shape active_shape in Active_Shapes)
                 {
                     bool to_move = false;
-<<<<<<< HEAD
                     foreach (Block part_of_shape in active_shape.shape_parts)
 =======
                 if (fullrow > 5) //FullRow space 
                 {
                     for (int to_die_shape = 0; to_die_shape < Active_Shapes.Count; to_die_shape++)
 >>>>>>> parent of 3f7420f... Logic fixed :)
-=======
-                    foreach (Block part_of_shape in active_shape.Block_positions)
->>>>>>> parent of 8ff73f7... Added Unity's NetManager.
                     {
                         for (int to_die_block =0; to_die_block < Blocks_in_Shape; to_die_block++)
                         {
@@ -205,7 +204,6 @@ public class Main : MonoBehaviour {
                     for (int to_survive_shape = 0; to_survive_shape < Active_Shapes.Count; to_survive_shape++)
                     {
 <<<<<<< HEAD
-<<<<<<< HEAD
                         if (!(Active_Shapes[to_survive_shape].shape_parts[to_survive_block].stay_alive))
                         {
                             Active_Shapes[to_survive_shape].shape_parts[to_survive_block].stay_alive = true;
@@ -217,11 +215,6 @@ public class Main : MonoBehaviour {
                                 Active_Shapes[to_survive_shape].Block_positions[to_survive_block].stay_alive = true;
                             }
 >>>>>>> parent of 3f7420f... Logic fixed :)
-=======
-                        if (!(Active_Shapes[to_survive_shape].Block_positions[to_survive_block].stay_alive))
-                        {
-                            Active_Shapes[to_survive_shape].Block_positions[to_survive_block].stay_alive = true;
->>>>>>> parent of 8ff73f7... Added Unity's NetManager.
                         }
                     }
 
@@ -235,7 +228,7 @@ public class Main : MonoBehaviour {
     {
         Active_Shapes.Add(Next_Shape);
         Current_Shape = Next_Shape;
-        Blocks_in_Shape = Current_Shape.Block_positions.Length;
+        Blocks_in_Shape = Current_Shape.shape_parts.Length;
         Next_Shape = new Shape();
     }
     public bool Check_For_NO_Room()
@@ -247,11 +240,7 @@ public class Main : MonoBehaviour {
         for (int parts_of_shape = 0; parts_of_shape < Blocks_in_Shape; parts_of_shape++)
         {
 <<<<<<< HEAD
-<<<<<<< HEAD
             foreach (Block in_first_Shape in Current_Shape.shape_parts)
-=======
-            foreach (Block in_first_Shape in Current_Shape.Block_positions)
->>>>>>> parent of 8ff73f7... Added Unity's NetManager.
             {
                 if (in_first_Shape.position.y < -19) return true;
             }
@@ -267,21 +256,17 @@ public class Main : MonoBehaviour {
     {
         if (Active_Shapes.Count > 1)
         {
-            foreach (Block check_empty_space in Current_Shape.Block_positions)
+            foreach (Block check_empty_space in Current_Shape.shape_parts)
             {
                 foreach (Shape active_shape in Active_Shapes)
                 {
                     foreach (Block occupied_space in active_shape.Block_positions)
                     {
 <<<<<<< HEAD
-<<<<<<< HEAD
                         foreach (Block occupied_space in active_shape.shape_parts)
 =======
                         if (check_empty_space.position.Equals(occupied_space.position))
 >>>>>>> parent of 3f7420f... Logic fixed :)
-=======
-                        foreach (Block occupied_space in active_shape.Block_positions)
->>>>>>> parent of 8ff73f7... Added Unity's NetManager.
                         {
                             return true;
                         }
@@ -338,16 +323,11 @@ public class Main : MonoBehaviour {
     {
         for (int parts_of_shape = 0; parts_of_shape < Blocks_in_Shape; parts_of_shape++)
         {
-<<<<<<< HEAD
             if (Current_Shape.shape_parts[parts_of_shape].position.x < Left_boundary) return true;
             if (Current_Shape.shape_parts[parts_of_shape].position.x > Right_boundary) return true;
 =======
             }
 >>>>>>> parent of 3f7420f... Logic fixed :)
-=======
-            if (Current_Shape.Block_positions[parts_of_shape].position.x < Left_boundary) return true;
-            if (Current_Shape.Block_positions[parts_of_shape].position.x > Right_boundary) return true;
->>>>>>> parent of 8ff73f7... Added Unity's NetManager.
         }
         return false;
     }
@@ -359,16 +339,16 @@ public class Main : MonoBehaviour {
 
         for (int part_of_preview = 0; part_of_preview < Blocks_in_Shape; part_of_preview++)
         {
-            int col = (int)Next_Shape.Block_positions[part_of_preview].position.x +1; //rendering +1 move
-            int row = (int)Next_Shape.Block_positions[part_of_preview].position.y + 29; //rendering +29 move
+            int col = (int)Next_Shape.shape_parts[part_of_preview].position.x +1; //rendering +1 move
+            int row = (int)Next_Shape.shape_parts[part_of_preview].position.y + 29; //rendering +29 move
             the_game_view[col, row] = 1;
         }      
         foreach(Shape shape_in_game in Active_Shapes)
         {
             for(int part_of_shape = 0; part_of_shape < Blocks_in_Shape; part_of_shape++)
             {
-                int column = (int)shape_in_game.Block_positions[part_of_shape].position.x - Left_boundary;
-                int row = (int)shape_in_game.Block_positions[part_of_shape].position.y + Bottom_boundary +1;
+                int column = (int)shape_in_game.shape_parts[part_of_shape].position.x - Left_boundary;
+                int row = (int)shape_in_game.shape_parts[part_of_shape].position.y + Bottom_boundary +1;
                 if (row < 0)
                 {
                     row = 29;
