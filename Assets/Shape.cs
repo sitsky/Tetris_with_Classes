@@ -150,7 +150,7 @@ public class Shape : MonoBehaviour {
         for (int part_of_shape = 0; part_of_shape < Block_positions.Length; part_of_shape++)
         {
             //Debug.Log("Move: " + Block_positions[part_of_shape].position.ToString());
-            if (!(Block_positions[part_of_shape].position.Equals(null)))
+            if (Block_positions[part_of_shape].position.y < 1)
             Block_positions[part_of_shape].position = Block_positions[part_of_shape].position + Vector2.down;
         }
     }

@@ -13,7 +13,7 @@ public class Main : MonoBehaviour {
 
     public Shape Next_Shape;
     public Shape Current_Shape;
-    List<Shape> Active_Shapes = new List<Shape>();
+    public List<Shape> Active_Shapes = new List<Shape>();
     int Blocks_in_Shape;
 
     float last_drop;
@@ -26,117 +26,54 @@ public class Main : MonoBehaviour {
     void Start () {
         last_drop = 0;
         Render_Switch = false;
-
         text_box = GetComponent<Text>();
 
+        Current_Shape = new Shape();
+        Blocks_in_Shape = Current_Shape.Block_positions.Length;
+        Active_Shapes.Add(Current_Shape);
         Next_Shape = new Shape();
-        Active_Shapes.Add(Next_Shape);
-        Next_Shape = new Shape();
+
+
         display();
         
     }
 
     // Update is called once per frame
     void Update() {
-        Current_Shape = Active_Shapes[Active_Shapes.Count -1];
-        Blocks_in_Shape = Current_Shape.Block_positions.Length;
-        bool no_room = false;
 
         if (Input.GetKeyDown(KeyCode.LeftArrow))
         {
-            Current_Shape.move_left();
-            no_room = Check_For_Room();
-            if (no_room)
-            {
-                Current_Shape.move_right();
-                Active_Shapes.Add(Next_Shape);
-                Next_Shape = new Shape();
-            }
-            if (Check_For_Boundaries())
-            {
-                Current_Shape.move_right();
-            }
+            move_left();
         }
         if (Input.GetKeyDown(KeyCode.RightArrow))
         {
-            Current_Shape.move_right();
-            no_room = Check_For_Room();
-            if (no_room)
-            {
-                Current_Shape.move_left();
-                Active_Shapes.Add(Next_Shape);
-                Next_Shape = new Shape();
-            }
-            if (Check_For_Boundaries())
-            {
-                Current_Shape.move_left();
-            }
+            move_right();
         }
         if (Input.GetKeyDown(KeyCode.UpArrow))
         {
-           
-            Current_Shape.rotate_clockwise();
-            no_room = Check_For_Room();
-            if (no_room)
-            {
-                Current_Shape.rotate_anticlockwise();
-                Active_Shapes.Add(Next_Shape);
-                Next_Shape = new Shape();
-            }
-            if (Check_For_Boundaries())
-            {
-                Current_Shape.rotate_anticlockwise();
-            }
+            rotate_clock();
         }
         if (Input.GetKeyDown(KeyCode.DownArrow))
         {
-      
-            Current_Shape.rotate_anticlockwise();
-            no_room = Check_For_Room();
-            if (no_room)
-            {
-                Current_Shape.rotate_clockwise();
-                Active_Shapes.Add(Next_Shape);
-                Next_Shape = new Shape();
-            }
-            if (Check_For_Boundaries())
-            {
-                Current_Shape.rotate_clockwise();
-            }
-
+            rotate_anti();
         }
         if (Time.time - last_drop > DropSpeed)
         {
             last_drop = Time.time;
             Current_Shape.move_down();
-            no_room = Check_For_Room();
-            if (no_room)
+            if (Check_For_NO_Room())
             {
-                Current_Shape.move_up();
-                Active_Shapes.Add(Next_Shape);
-                Next_Shape = new Shape();
+                Current_Shape.move_up(); 
+                Check_Lines();
+                make_new_process();
             }
-            else
-            {
-                for (int part_of_block = 0; part_of_block < Blocks_in_Shape; part_of_block++)
-                {
-                    if (Current_Shape.Block_positions[part_of_block].position.y < -Bottom_boundary)
-                    {
-                        Active_Shapes.Add(Next_Shape);
-                        Next_Shape = new Shape();
-                    }
-                }
-            }
-            Check_Lines();
         }
-
         if (!Render_Switch)
         {
             display();
         }
-        else { }//TODO;
+        //else { }//TODO;
     }
-
 
     public void Check_Lines()
     {
@@ -150,72 +87,152 @@ public class Main : MonoBehaviour {
                 {
                     if (part_of_shape.position.y == (row - Bottom_boundary))
                     {
-                        Debug.Log("Row: " + row.ToString() + " Y: " + part_of_shape.position.y.ToString());
+                        //Debug.Log("Row: " + row.ToString() + " Y: " + part_of_shape.position.y.ToString());
                         part_of_shape.stay_alive = false;
                         fullrow++;
                     }
                 }
-                if (fullrow > 5) //FullRow space 
+            }
+            if (fullrow > 11) //FullRow space 
+            {
+                row--;
+            for (int to_die_shape = 0; to_die_shape < Active_Shapes.Count; to_die_shape++)
                 {
-                    for (int to_die_shape = 0; to_die_shape < Active_Shapes.Count; to_die_shape++)
+                    for (int to_die_block = 0; to_die_block < Blocks_in_Shape; to_die_block++)
                     {
-                        for (int to_die_block =0; to_die_block < Blocks_in_Shape; to_die_block++)
+                        if (!(Active_Shapes[to_die_shape].Block_positions[to_die_block].stay_alive))
                         {
-                            if(!(Active_Shapes[to_die_shape].Block_positions[to_die_block].stay_alive))
-                            {
-                                Debug.Log("Pieces dying: ");
-                                Active_Shapes[to_die_shape].Block_positions[to_die_block].position = new Vector2(5,5);
-                            }
+                            Active_Shapes[to_die_shape].Block_positions[to_die_block].position = new Vector2(5, 8);
                         }
                     }
                 }
-                else
+                foreach (Shape active_shape in Active_Shapes)
                 {
-                    for (int to_survive_shape = 0; to_survive_shape < Active_Shapes.Count; to_survive_shape++)
+                    bool to_move = false;
+                    foreach (Block part_of_shape in active_shape.Block_positions)
                     {
-                        for (int to_survive_block = 0; to_survive_block < Blocks_in_Shape; to_survive_block++)
+                        if ((part_of_shape.position.y > (row - Bottom_boundary)) && (part_of_shape.position.y < 0))
                         {
-                            if (!(Active_Shapes[to_survive_shape].Block_positions[to_survive_block].stay_alive))
-                            {
-                                Active_Shapes[to_survive_shape].Block_positions[to_survive_block].stay_alive = true;
-                            }
+                            to_move = true;
                         }
                     }
-
+                    if (to_move) active_shape.move_down();
+                }
+            }
+            else
+            {
+                for (int to_survive_shape = 0; to_survive_shape < Active_Shapes.Count; to_survive_shape++)
+                {
+                    for (int to_survive_block = 0; to_survive_block < Blocks_in_Shape; to_survive_block++)
+                    {
+                        if (!(Active_Shapes[to_survive_shape].Block_positions[to_survive_block].stay_alive))
+                        {
+                            Active_Shapes[to_survive_shape].Block_positions[to_survive_block].stay_alive = true;
+                        }
+                    }
                 }
             }
         }
     }
 
-    public bool Check_For_Boundaries()
+    public void make_new_process()
     {
-        bool hitting_walls = false;
-        for (int parts_of_shape = 0; parts_of_shape < Blocks_in_Shape; parts_of_shape++)
-        {
-            if (Current_Shape.Block_positions[parts_of_shape].position.x < Left_boundary) hitting_walls = true;
-            if (Current_Shape.Block_positions[parts_of_shape].position.x > Right_boundary) hitting_walls = true;
-        }
-        return hitting_walls;
+        Active_Shapes.Add(Next_Shape);
+        Current_Shape = Next_Shape;
+        Blocks_in_Shape = Current_Shape.Block_positions.Length;
+        Next_Shape = new Shape();
     }
-
-    public bool Check_For_Room()
+    public bool Check_For_NO_Room()
     {
-        if (Active_Shapes.Count > 1)
+        if (Active_Shapes.Count == 1)
+        {
+            foreach (Block in_first_Shape in Current_Shape.Block_positions)
+            {
+                if (in_first_Shape.position.y < -19) return true;
+            }
+        }
+        else
         {
             foreach (Block check_empty_space in Current_Shape.Block_positions)
             {
-                foreach (Shape active_shape in Active_Shapes)
+                if (check_empty_space.position.y < -4)
                 {
-                    foreach (Block occupied_space in active_shape.Block_positions)
+                    foreach (Shape active_shape in Active_Shapes.GetRange(0, Active_Shapes.Count - 1))
                     {
-                        if (check_empty_space.position.Equals(occupied_space.position))
+                        foreach (Block occupied_space in active_shape.Block_positions)
                         {
-                            return true;
+
+                            if (check_empty_space.position.Equals(occupied_space.position))
+                                return true;
+                            else if (check_empty_space.position.y < -19)
+                                return true;
                         }
                     }
                 }
-
+                //else{} //TODO: GAMEOVER!
             }
+        }
+        return false;
+    }
+    public void move_left()
+    {
+        Current_Shape.move_left();
+        if (Check_For_NO_Room())
+        {
+            Current_Shape.move_right();
+            make_new_process();
+
+        }
+        if (Check_For_Boundaries())
+        {
+            Current_Shape.move_right();
+        }
+    }
+    public void move_right()
+    {
+        Current_Shape.move_right();
+        if (Check_For_NO_Room())
+        {
+            Current_Shape.move_left();
+            make_new_process();
+        }
+        if (Check_For_Boundaries())
+        {
+            Current_Shape.move_left();
+        }
+    }
+    public void rotate_clock()
+    {
+        Current_Shape.rotate_clockwise();
+        if (Check_For_NO_Room())
+        {
+            Current_Shape.rotate_anticlockwise();
+            make_new_process();
+        }
+        if (Check_For_Boundaries())
+        {
+            Current_Shape.rotate_anticlockwise();
+        }
+    }
+    public void rotate_anti()
+    {
+        Current_Shape.rotate_anticlockwise();
+        if (Check_For_NO_Room())
+        {
+            Current_Shape.rotate_clockwise();
+            make_new_process();
+        }
+        if (Check_For_Boundaries())
+        {
+            Current_Shape.rotate_clockwise();
+        }
+    }
+    public bool Check_For_Boundaries()
+    {
+        for (int parts_of_shape = 0; parts_of_shape < Blocks_in_Shape; parts_of_shape++)
+        {
+            if (Current_Shape.Block_positions[parts_of_shape].position.x < Left_boundary) return true;
+            if (Current_Shape.Block_positions[parts_of_shape].position.x > Right_boundary) return true;
         }
         return false;
     }
