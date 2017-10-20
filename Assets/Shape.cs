@@ -4,7 +4,6 @@ using System.Collections;
 public class Shape : MonoBehaviour {
 
     public Block[] shape_parts = new Block[4];
-    public GameObject[] block3D = new GameObject[4];
 
     public enum Shape_choice : int { L = 1, J, I, O, S, Z, T };   
     public Shape_choice myshape;
@@ -12,36 +11,12 @@ public class Shape : MonoBehaviour {
     //public enum Shape_Orientation : int { ZERO = 0, NINTY = 1, ONEEIGHTY = 2, TWOSEVENTY = 3 };
     //public Shape_Orientation myorientation;
 
-    void Start()
-    {
-        myshape = (Shape_choice)Random.Range(1, (int)Shape_choice.T);
-    }
-/*
-        shape_parts = create_choice(myshape);
-        for (int i = 0; i < 4; i++)
-        {
-            Instantiate(block3D[i]);
-        }
-        for (int i = 0; i < 4; i++)
-        {
-            block3D[i].transform.position = shape_parts[i].position + new Vector2(-200, 0);
-        }
-        
-    }
-
-    void Update()
-    {
-        for (int i = 0; i < 4; i++)
-        {
-            block3D[i].transform.position = shape_parts[i].position + new Vector2(-200, 0);
-        }
-    }*/
-
+    
 
     public Shape()
     {
         //myorientation = Shape_Orientation.ZERO;
-        
+        myshape = (Shape_choice)Random.Range(1, (int)Shape_choice.T);
         shape_parts = create_choice(myshape);
     }
 

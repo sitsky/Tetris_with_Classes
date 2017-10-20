@@ -22,7 +22,7 @@ public class Main : MonoBehaviour {
     Text text_box;
 
     public bool Render_Switch;
-
+    public GameObject[] block3D = new GameObject[4];
     // Use this for initialization
     void Start () {
         last_drop = 0;
@@ -34,7 +34,14 @@ public class Main : MonoBehaviour {
         Active_Shapes.Add(Current_Shape);
         Next_Shape = new Shape();
 
-
+        for (int i = 0; i < 4; i++)
+        {
+            Instantiate(block3D[i]);
+        }
+        for (int i = 0; i < 4; i++)
+        {
+            block3D[i].transform.position = Current_Shape.shape_parts[i].position + new Vector2(-200, 0);
+        }
         display();
         
     }
@@ -42,7 +49,10 @@ public class Main : MonoBehaviour {
     // Update is called once per frame
     void Update() {
 
-
+        for (int i = 0; i < 4; i++)
+        {
+            block3D[i].transform.position = Current_Shape.shape_parts[i].position + new Vector2(-200, 0);
+        }
 
         if (Input.GetKeyDown(KeyCode.LeftArrow))
         {
