@@ -19,7 +19,8 @@ public class Main : MonoBehaviour {
 
     float last_drop;
     float DropSpeed = 0.5f;
-    Text text_box;
+    public Text text_box;
+    public Canvas canvas_to_off;
 
     public bool Render_Switch;
     public GameObject[] block3D = new GameObject[4];
@@ -40,10 +41,13 @@ public class Main : MonoBehaviour {
         }
         for (int i = 0; i < 4; i++)
         {
-            block3D[i].transform.position = Current_Shape.shape_parts[i].position + new Vector2(-200, 0);
+            block3D[i].transform.position = new Vector3(Current_Shape.shape_parts[i].position.x, Current_Shape.shape_parts[i].position.y, 0);
         }
-        display();
-        
+        if (Render_Switch)
+        {
+            canvas_to_off.GetComponent<Canvas>().enabled = false;
+            display();
+        }
     }
 
     // Update is called once per frame
@@ -51,7 +55,7 @@ public class Main : MonoBehaviour {
 
         for (int i = 0; i < 4; i++)
         {
-            block3D[i].transform.position = Current_Shape.shape_parts[i].position + new Vector2(-200, 0);
+            block3D[i].transform.position = new Vector3(Current_Shape.shape_parts[i].position.x, Current_Shape.shape_parts[i].position.y, 0);
         }
 
         if (Input.GetKeyDown(KeyCode.LeftArrow))
@@ -81,10 +85,12 @@ public class Main : MonoBehaviour {
                 make_new_process();
             }
         }
-        if (!Render_Switch)
+        if (Render_Switch)
         {
+            canvas_to_off.GetComponent<Canvas>().enabled = false;
             display();
         }
+
         //else { }//TODO;
     }
 
@@ -154,6 +160,14 @@ public class Main : MonoBehaviour {
         Current_Shape = Next_Shape;
         Blocks_in_Shape = Current_Shape.shape_parts.Length;
         Next_Shape = new Shape();
+        for (int i = 0; i < 4; i++)
+        {
+            Instantiate(block3D[i]);
+        }
+        for (int i = 0; i < 4; i++)
+        {
+            block3D[i].transform.position = new Vector3(Current_Shape.shape_parts[i].position.x, Current_Shape.shape_parts[i].position.y, 0);
+        }
     }
     public bool Check_For_NO_Room()
     {
