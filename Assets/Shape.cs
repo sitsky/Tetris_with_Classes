@@ -12,15 +12,31 @@ public class Shape : MonoBehaviour {
     //public enum Shape_Orientation : int { ZERO = 0, NINTY = 1, ONEEIGHTY = 2, TWOSEVENTY = 3 };
     //public Shape_Orientation myorientation;
 
-    private void Start()
+    void Start()
     {
         myshape = (Shape_choice)Random.Range(1, (int)Shape_choice.T);
+    }
+/*
         shape_parts = create_choice(myshape);
         for (int i = 0; i < 4; i++)
         {
-            Instantiate(block3D[i], shape_parts[i].position + Vector2.left * 200, Quaternion.identity);
+            Instantiate(block3D[i]);
         }
+        for (int i = 0; i < 4; i++)
+        {
+            block3D[i].transform.position = shape_parts[i].position + new Vector2(-200, 0);
+        }
+        
     }
+
+    void Update()
+    {
+        for (int i = 0; i < 4; i++)
+        {
+            block3D[i].transform.position = shape_parts[i].position + new Vector2(-200, 0);
+        }
+    }*/
+
 
     public Shape()
     {

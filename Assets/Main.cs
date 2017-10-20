@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using System.Collections;
 using UnityEditor;
 using System.Collections.Generic;
+using UnityEngine.Networking;
 
 public class Main : MonoBehaviour {
 
@@ -10,15 +11,14 @@ public class Main : MonoBehaviour {
     int Left_boundary = -5;
     int Right_boundary = 6;
     int Bottom_boundary = 20;
-    
-    Shape Next_Shape;
-    Shape Current_Shape;
-    List<Shape> Active_Shapes = new List<Shape>();
+
+    public Shape Next_Shape;
+    public Shape Current_Shape;
+    public List<Shape> Active_Shapes = new List<Shape>();
     int Blocks_in_Shape;
 
     float last_drop;
     float DropSpeed = 0.5f;
-
     Text text_box;
 
     public bool Render_Switch;
@@ -27,7 +27,6 @@ public class Main : MonoBehaviour {
     void Start () {
         last_drop = 0;
         Render_Switch = false;
-
         text_box = GetComponent<Text>();
 
         Current_Shape = new Shape();
@@ -35,7 +34,8 @@ public class Main : MonoBehaviour {
         Active_Shapes.Add(Current_Shape);
         Next_Shape = new Shape();
 
-       // display();
+
+        display();
         
     }
 
@@ -73,7 +73,7 @@ public class Main : MonoBehaviour {
         }
         if (!Render_Switch)
         {
-            //display();
+            display();
         }
         //else { }//TODO;
     }
