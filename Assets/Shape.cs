@@ -3,7 +3,7 @@ using System.Collections;
 
 public class Shape : MonoBehaviour {
 
-    public Block[] Block_positions = new Block[4];
+    public Block[] shape_parts = new Block[4];
 
     public enum Shape_choice : int { L = 1, J, I, O, S, Z, T };   
     public Shape_choice myshape;
@@ -15,7 +15,7 @@ public class Shape : MonoBehaviour {
     {
         //myorientation = Shape_Orientation.ZERO;
         myshape = (Shape_choice)Random.Range(1, (int)Shape_choice.T);
-        Block_positions = create_choice(myshape);
+        shape_parts = create_choice(myshape);
     }
 
 
@@ -77,15 +77,15 @@ public class Shape : MonoBehaviour {
         if (myshape == Shape_choice.O) return; 
         else
         {
-            Vector2 pivot = Block_positions[0].position;
+            Vector2 pivot = shape_parts[0].position;
             //Debug.Log("pivot: " + pivot.ToString());
-            for (int part_of_shape = 1; part_of_shape < Block_positions.Length; part_of_shape++)
+            for (int part_of_shape = 1; part_of_shape < shape_parts.Length; part_of_shape++)
             {
-                Vector2 direction_of_block = Block_positions[part_of_shape].position - pivot;
+                Vector2 direction_of_block = shape_parts[part_of_shape].position - pivot;
                 Vector2 rotated;
                 rotated.x = direction_of_block.y;
                 rotated.y = -direction_of_block.x;
-                Block_positions[part_of_shape].position = rotated + pivot;
+                shape_parts[part_of_shape].position = rotated + pivot;
                // Debug.Log("originalpart: " + part_of_shape.ToString());
             }
             //Sample Code for Rotations if we need to adjust to look better.
@@ -116,50 +116,50 @@ public class Shape : MonoBehaviour {
         if (myshape == Shape_choice.O) return;
         else
         {
-            Vector2 pivot = Block_positions[0].position;
-            for (int part_of_shape = 1; part_of_shape < Block_positions.Length; part_of_shape++)
+            Vector2 pivot = shape_parts[0].position;
+            for (int part_of_shape = 1; part_of_shape < shape_parts.Length; part_of_shape++)
             {
-                Vector2 direction_of_part = Block_positions[part_of_shape].position - pivot;
+                Vector2 direction_of_part = shape_parts[part_of_shape].position - pivot;
                 Vector2 rotated;
                 rotated.x = -direction_of_part.y;
                 rotated.y = direction_of_part.x;
-                Block_positions[part_of_shape].position = rotated + pivot;
+                shape_parts[part_of_shape].position = rotated + pivot;
             }           
         }
     }
 
     public void move_left()
     {
-        for (int part_of_shape = 0; part_of_shape < Block_positions.Length; part_of_shape++)
+        for (int part_of_shape = 0; part_of_shape < shape_parts.Length; part_of_shape++)
         {
-            Block_positions[part_of_shape].position = Block_positions[part_of_shape].position + Vector2.left;
+            shape_parts[part_of_shape].position = shape_parts[part_of_shape].position + Vector2.left;
         }
     }
 
     public void move_right()
     {
-        for (int part_of_shape = 0; part_of_shape < Block_positions.Length; part_of_shape++)
+        for (int part_of_shape = 0; part_of_shape < shape_parts.Length; part_of_shape++)
         {
-            Block_positions[part_of_shape].position = Block_positions[part_of_shape].position + Vector2.right;
+            shape_parts[part_of_shape].position = shape_parts[part_of_shape].position + Vector2.right;
         }
     }
 
     public void move_down()
     {
         
-        for (int part_of_shape = 0; part_of_shape < Block_positions.Length; part_of_shape++)
+        for (int part_of_shape = 0; part_of_shape < shape_parts.Length; part_of_shape++)
         {
             //Debug.Log("Move: " + Block_positions[part_of_shape].position.ToString());
-            if (Block_positions[part_of_shape].position.y < 1)
-            Block_positions[part_of_shape].position = Block_positions[part_of_shape].position + Vector2.down;
+            if (shape_parts[part_of_shape].position.y < 1)
+            shape_parts[part_of_shape].position = shape_parts[part_of_shape].position + Vector2.down;
         }
     }
 
     public void move_up()
     {
-        for (int part_of_shape = 0; part_of_shape < Block_positions.Length; part_of_shape++)
+        for (int part_of_shape = 0; part_of_shape < shape_parts.Length; part_of_shape++)
         {
-            Block_positions[part_of_shape].position = Block_positions[part_of_shape].position + Vector2.up;
+            shape_parts[part_of_shape].position = shape_parts[part_of_shape].position + Vector2.up;
         }
     }
 }
