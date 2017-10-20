@@ -177,8 +177,13 @@ public class Shape : MonoBehaviour {
         for (int part_of_shape = 0; part_of_shape < shape_parts.Length; part_of_shape++)
         {
             //Debug.Log("Move: " + Block_positions[part_of_shape].position.ToString());
+<<<<<<< HEAD
             if (shape_parts[part_of_shape].position.y < 1)
             shape_parts[part_of_shape].position = shape_parts[part_of_shape].position + Vector2.down;
+=======
+            if (!(Block_positions[part_of_shape].position.Equals(null)))
+            Block_positions[part_of_shape].position = Block_positions[part_of_shape].position + Vector2.down;
+>>>>>>> parent of 3f7420f... Logic fixed :)
         }
     }
 
