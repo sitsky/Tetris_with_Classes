@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Shape : MonoBehaviour {
+public class Shape {
 
     public Block[] shape_parts = new Block[4];
 
@@ -74,7 +74,7 @@ public class Shape : MonoBehaviour {
         return block_chosen;
     }
 
-    public void rotate_clockwise()
+    public void Shape_rotate_anticlockwise()
     {
         if (myshape == Shape_choice.O) return; 
         else
@@ -113,7 +113,7 @@ public class Shape : MonoBehaviour {
         //if (myorientation > Shape_Orientation.TWOSEVENTY) myorientation = Shape_Orientation.ZERO;
     }
 
-    public void rotate_anticlockwise()
+    public void Shape_rotate_clockwise()
     {
         if (myshape == Shape_choice.O) return;
         else
@@ -130,7 +130,7 @@ public class Shape : MonoBehaviour {
         }
     }
 
-    public void move_left()
+    public void Shape_move_left()
     {
         for (int part_of_shape = 0; part_of_shape < shape_parts.Length; part_of_shape++)
         {
@@ -138,7 +138,7 @@ public class Shape : MonoBehaviour {
         }
     }
 
-    public void move_right()
+    public void Shape_move_right()
     {
         for (int part_of_shape = 0; part_of_shape < shape_parts.Length; part_of_shape++)
         {
@@ -146,7 +146,7 @@ public class Shape : MonoBehaviour {
         }
     }
 
-    public void move_down()
+    public void Shape_move_down()
     {
         
         for (int part_of_shape = 0; part_of_shape < shape_parts.Length; part_of_shape++)
@@ -157,7 +157,7 @@ public class Shape : MonoBehaviour {
         }
     }
 
-    public void move_up()
+    public void Shape_move_up()
     {
         for (int part_of_shape = 0; part_of_shape < shape_parts.Length; part_of_shape++)
         {
