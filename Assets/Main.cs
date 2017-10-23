@@ -25,18 +25,21 @@ public class Main : MonoBehaviour {
 
     //float last_drop;
     float DropSpeed = 0.5f;
+    int player_render_shift_x = -50;
+    int player_render_shift_y = 30;
 
     public GameObject Play_Screen;
 //    Text[] text_box = new Text[2];
     List<Text> text_box = new List<Text>();
 
     public bool Render_Switch;
-    public GameObject[] block3D = new GameObject[4];
+    public GameObject block3D;
+    public GameObject[] shape;
 
     // Use this for initialization
     void Start() {
         
-        Render_Switch = false;
+        Render_Switch = true;
         GameObject canvas = GameObject.Find("Canvas"); 
 
         Motion_keys last_given = Motion_keys.left;
@@ -66,7 +69,9 @@ public class Main : MonoBehaviour {
         }
 
 
+        shape = new GameObject[Tetris_Players.Count*4];
 
+        int each_player_boxes = 0;
         foreach (Player Current_Player in Tetris_Players)
         {
             Current_Player.last_drop = 0;
@@ -81,13 +86,17 @@ public class Main : MonoBehaviour {
 
             if (Render_Switch)
             {
+                Destroy(canvas);
                 for (int i = 0; i < 4; i++)
                 {
-                    Instantiate(block3D[i]);
+                    
+                    shape[i + each_player_boxes] = Instantiate(block3D);
                 }
                 for (int i = 0; i < 4; i++)
                 {
-                   // block3D[i].transform.position = new Vector3(Current_Shape.shape_parts[i].position.x, Current_Shape.shape_parts[i].position.y, 0);
+                    
+                    shape[i + each_player_boxes].transform.position = new Vector3(Current_Player.Player_Current_Shape.shape_parts[i].position.x + player_render_shift_x, 
+                        Current_Player.Player_Current_Shape.shape_parts[i].position.y + player_render_shift_y, 0);
                 }
             }
             else
@@ -95,14 +104,19 @@ public class Main : MonoBehaviour {
                
                 Display();
             }
+            each_player_boxes += 4;
+            player_render_shift_x += 100;
         }
     }
 
     // Update is called once per frame
     void Update() {
+        player_render_shift_x = -50;
+        int each_player_boxes = 0;
 
         foreach (Player Current_Player in Tetris_Players)
         {
+            each_player_boxes = Tetris_Players.IndexOf(Current_Player);
             GetPlayersShapes(Current_Player);
 
             if (Input.GetKeyDown(Current_Player.mymotion[0].ToString()))
@@ -136,18 +150,19 @@ public class Main : MonoBehaviour {
             }
             if (Render_Switch)
             {
-                for (int i = 0; i < 4; i++)
+                for (int i = 0; i < Current_Player.Player_Current_Shape.shape_parts.Length; i++)
                 {
-                  //  block3D[i].transform.position = new Vector3(Current_Shape.shape_parts[i].position.x, Current_Shape.shape_parts[i].position.y, 0);
+                    float temp_x = Current_Player.Player_Current_Shape.shape_parts[i].position.x + player_render_shift_x;
+                    float temp_y = Current_Player.Player_Current_Shape.shape_parts[i].position.y + player_render_shift_y;
+                    shape[i + (each_player_boxes * 4)].transform.position = new Vector3(temp_x, temp_y, 0);
+
                 }
             }
             else
             {
-               
-
                 Display();
             }
-            
+            player_render_shift_x += 100;
         }
         //else { }//TODO;
     }
@@ -254,12 +269,12 @@ public class Main : MonoBehaviour {
             {
                 for (int i = 0; i < 4; i++)
                 {
-                    Instantiate(block3D[i]);
+                    //Instantiate(block3D[i]);
                 }
                 for (int i = 0; i < 4; i++)
                 {
-                    block3D[i].transform.position = new Vector3(Current_Player.Player_Current_Shape.shape_parts[i].position.x, 
-                        Current_Player.Player_Current_Shape.shape_parts[i].position.y, 0);
+                    //block3D[i].transform.position = new Vector3(Current_Player.Player_Current_Shape.shape_parts[i].position.x, 
+                    //    Current_Player.Player_Current_Shape.shape_parts[i].position.y, 0);
                 }
             }
         }
