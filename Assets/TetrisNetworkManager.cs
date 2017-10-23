@@ -3,10 +3,10 @@ using System.Collections;
 using UnityEngine.Networking;
 
 public class TetrisNetworkManager : MonoBehaviour {
-
+    public enum Lan_Status { Server, Local_Client, Remote_Client };
 
     public NetworkClient myClient;
-
+    public Lan_Status my_status;
    
     public void SetupServer()
     {
@@ -14,12 +14,12 @@ public class TetrisNetworkManager : MonoBehaviour {
     }
 
     // Create a client and connect to the server port
-    public NetworkClient SetupClient()
+    public void SetupClient()
     {
         myClient = new NetworkClient();
         myClient.RegisterHandler(MsgType.Connect, OnConnected);
         myClient.Connect("127.0.0.1", 4444);
-        return myClient;
+        my_status = Lan_Status.Remote_Client;
     }
 
     
@@ -27,6 +27,7 @@ public class TetrisNetworkManager : MonoBehaviour {
     {
         myClient = ClientScene.ConnectLocalServer();
         myClient.RegisterHandler(MsgType.Connect, OnConnected);
+        my_status = Lan_Status.Local_Client;
     }
 
     public void OnConnected(NetworkMessage netMsg)

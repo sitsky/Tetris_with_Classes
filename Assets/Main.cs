@@ -45,7 +45,10 @@ public class Main : MonoBehaviour {
     int keys_per_player = 4;
 
     //Switch for Lan
-    public bool Go_Lan;
+    public bool Go_Lan = false;
+    public bool me_server = false; //button to assign self server and local client
+    public bool me_remote = false; //button to assign self remote client
+    
     TetrisNetworkManager Lan_Manager;
 
     //List of players playing and List for their keys. 
@@ -58,11 +61,19 @@ public class Main : MonoBehaviour {
 
         if (Go_Lan) //lan 2 player 
         {
-            Lan_Manager.SetupServer();
             Create_Player();
-            Tetris_Players[0].Lan_Player.SetupLocalClient();
             Create_Player();
-            Tetris_Players[1].Lan_Player.SetupClient();
+            if (me_server)
+            {
+                Lan_Manager.SetupServer();
+                Tetris_Players[0].Lan_Player.SetupLocalClient();
+                me_remote = false;
+            }
+            if (me_remote)
+            {
+                Tetris_Players[1].Lan_Player.SetupClient();
+                me_server = false;
+            }
         }
         else //local 2 player
         {
@@ -104,7 +115,7 @@ public class Main : MonoBehaviour {
         next_player_text_shift_x = player_text_shift_x;
         foreach (Player Current_Player in Tetris_Players)
         {
-            Get_Player_Keys(Current_Player);
+            Get_Player_Keys(Current_Player); //TODO flip keys for local arrows?...
 
             if (Input.GetKeyDown(Current_Player.mymotion[0].ToString()))
             {
@@ -132,7 +143,15 @@ public class Main : MonoBehaviour {
                 {
                     Current_Player.Player_Current_Shape.Shape_move_up();
                     Check_Lines(Current_Player);
-                    Make_new_shape(Current_Player);
+                    if (me_server)
+                    {
+                        Make_new_shape(Current_Player);
+                        //TODO: Update_PlayerLists_Clients()
+                    }
+                    if (me_remote)
+                    {
+                        //callback on receive Tetris_Players List.
+                    }
                 }
             }
         }
