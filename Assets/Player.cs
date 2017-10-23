@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Player {
+public class Player : MonoBehaviour{
 
     public Motion_keys[] mymotion = new Motion_keys[4];
     public List<Shape> Active_Shapes = new List<Shape>();
@@ -12,7 +12,6 @@ public class Player {
     public float last_drop;
 
     public Player()
-    {
-   
+    {  
     }
 }

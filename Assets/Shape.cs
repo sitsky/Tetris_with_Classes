@@ -11,15 +11,12 @@ public class Shape {
     //public enum Shape_Orientation : int { ZERO = 0, NINTY = 1, ONEEIGHTY = 2, TWOSEVENTY = 3 };
     //public Shape_Orientation myorientation;
 
-    
-
     public Shape()
     {
         //myorientation = Shape_Orientation.ZERO;
         myshape = (Shape_choice)Random.Range(1, (int)Shape_choice.T);
         shape_parts = create_choice(myshape);
     }
-
 
     public Block[] create_choice(Shape_choice make_shape)
     {
@@ -112,7 +109,6 @@ public class Shape {
         //myorientation++;
         //if (myorientation > Shape_Orientation.TWOSEVENTY) myorientation = Shape_Orientation.ZERO;
     }
-
     public void Shape_rotate_clockwise()
     {
         if (myshape == Shape_choice.O) return;
@@ -137,7 +133,6 @@ public class Shape {
             shape_parts[part_of_shape].position = shape_parts[part_of_shape].position + Vector2.left;
         }
     }
-
     public void Shape_move_right()
     {
         for (int part_of_shape = 0; part_of_shape < shape_parts.Length; part_of_shape++)
@@ -145,7 +140,6 @@ public class Shape {
             shape_parts[part_of_shape].position = shape_parts[part_of_shape].position + Vector2.right;
         }
     }
-
     public void Shape_move_down()
     {
         
@@ -156,7 +150,6 @@ public class Shape {
             shape_parts[part_of_shape].position = shape_parts[part_of_shape].position + Vector2.down;
         }
     }
-
     public void Shape_move_up()
     {
         for (int part_of_shape = 0; part_of_shape < shape_parts.Length; part_of_shape++)
