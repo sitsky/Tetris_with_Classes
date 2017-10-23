@@ -44,6 +44,10 @@ public class Main : MonoBehaviour {
     public bool two_players;
     int keys_per_player = 4;
 
+    //Switch for Lan
+    public bool Go_Lan;
+    TetrisNetworkManager Lan_Manager;
+
     //List of players playing and List for their keys. 
     public List<Player> Tetris_Players = new List<Player>();
     public Motion_keys[] Current_keys = new Motion_keys[4];
@@ -52,14 +56,25 @@ public class Main : MonoBehaviour {
         GameObject canvas = GameObject.Find("Canvas"); 
         Motion_keys last_key_given = Motion_keys.left;
 
-        if (two_players)
+        if (Go_Lan) //lan 2 player 
         {
+            Lan_Manager.SetupServer();
             Create_Player();
+            Tetris_Players[0].Lan_Player.SetupLocalClient();
             Create_Player();
+            Tetris_Players[1].Lan_Player.SetupClient();
         }
-        else
+        else //local 2 player
         {
-            Create_Player();
+            if (two_players)
+            {
+                Create_Player();
+                Create_Player();
+            }
+            else
+            {
+                Create_Player();
+            }
         }
 
         foreach (Player Current_Player in Tetris_Players)
