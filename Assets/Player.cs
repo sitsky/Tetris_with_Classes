@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Player : MonoBehaviour{
+public class Player {
 
     public Motion_keys[] mymotion = new Motion_keys[4];
     public List<Shape> Active_Shapes = new List<Shape>();

@@ -3,7 +3,10 @@ using System.Collections;
 
 public class Block {
 
+    //position of each block
     public Vector2 position;
+    
+    //Flip block state for potential destroy if line is full
     public bool stay_alive;
     
     public Block(int x_coord, int y_coord)
