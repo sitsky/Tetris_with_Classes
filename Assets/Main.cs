@@ -68,9 +68,6 @@ public class Main : MonoBehaviour {
             text_box.Add(ps1.GetComponent<Text>());
         }
 
-
-        shape = new GameObject[Tetris_Players.Count*4];
-
         int each_player_boxes = 0;
         foreach (Player Current_Player in Tetris_Players)
         {
@@ -87,15 +84,14 @@ public class Main : MonoBehaviour {
             if (Render_Switch)
             {
                 Destroy(canvas);
-                for (int i = 0; i < 4; i++)
+                shape = new GameObject[Current_Player.Player_Current_Shape.shape_parts.Length];
+                for (int i = 0; i < Current_Player.Player_Current_Shape.shape_parts.Length; i++)
                 {
-                    
-                    shape[i + each_player_boxes] = Instantiate(block3D);
+                    shape[i] = Instantiate(block3D);
                 }
-                for (int i = 0; i < 4; i++)
-                {
-                    
-                    shape[i + each_player_boxes].transform.position = new Vector3(Current_Player.Player_Current_Shape.shape_parts[i].position.x + player_render_shift_x, 
+                for (int i = 0; i < Current_Player.Player_Current_Shape.shape_parts.Length; i++)
+                {                    
+                    shape[i].transform.position = new Vector3(Current_Player.Player_Current_Shape.shape_parts[i].position.x + player_render_shift_x, 
                         Current_Player.Player_Current_Shape.shape_parts[i].position.y + player_render_shift_y, 0);
                 }
             }
@@ -150,12 +146,25 @@ public class Main : MonoBehaviour {
             }
             if (Render_Switch)
             {
-                for (int i = 0; i < Current_Player.Player_Current_Shape.shape_parts.Length; i++)
-                {
-                    float temp_x = Current_Player.Player_Current_Shape.shape_parts[i].position.x + player_render_shift_x;
-                    float temp_y = Current_Player.Player_Current_Shape.shape_parts[i].position.y + player_render_shift_y;
-                    shape[i + (each_player_boxes * 4)].transform.position = new Vector3(temp_x, temp_y, 0);
+                GameObject[] todie = GameObject.FindGameObjectsWithTag("shape");
+                foreach (GameObject i in todie) Destroy(i);
 
+                int total_shapes_to3d = 0;
+                foreach (Shape i in Current_Player.Active_Shapes)
+                    foreach (Block j in i.shape_parts) total_shapes_to3d++;
+
+                shape = new GameObject[total_shapes_to3d];
+                int k = 0;
+                foreach (Shape i in Current_Player.Active_Shapes)
+                {
+                    foreach (Block j in i.shape_parts)
+                    {
+                        shape[k] = Instantiate(block3D);
+                        float temp_x = j.position.x + player_render_shift_x;
+                        float temp_y = j.position.y + player_render_shift_y;
+                        shape[k].transform.position = new Vector3(temp_x, temp_y, 0);
+                        k++;
+                    }
                 }
             }
             else
