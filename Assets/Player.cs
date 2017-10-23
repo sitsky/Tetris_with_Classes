@@ -9,6 +9,7 @@ public class Player {
     public Shape Player_Current_Shape;
     public Shape Player_Next_Shape;
     public int Player_Blocks_in_Shape;
+    public float last_drop;
 
     public Player()
     {

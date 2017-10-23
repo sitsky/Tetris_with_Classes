@@ -1,10 +1,12 @@
 fileFormatVersion: 2
 guid: 86b0b2d426953804baa7e3b10ccf0ee1
-timeCreated: 1508352384
-licenseType: Pro
+timeCreated: 1508713007
+licenseType: Free
 MonoImporter:
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - Play_Screen: {fileID: 1981867171426392, guid: 8ca90052616c5c2498f6622c8fe573c0,
+      type: 2}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 
