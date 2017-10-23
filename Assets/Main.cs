@@ -48,12 +48,12 @@ public class Main : MonoBehaviour {
 
             GameObject ps1 = (GameObject)Instantiate(Play_Screen);
             ps1.transform.SetParent(canvas.transform);
-            ps1.transform.SetPositionAndRotation(new Vector3(629, 639, 0), Quaternion.identity);
+            ps1.transform.position = new Vector3(500, 390, 0);
             text_box.Add(ps1.GetComponent<Text>());
 
             GameObject ps2 = (GameObject)Instantiate(Play_Screen);
             ps2.transform.SetParent(canvas.transform);
-            ps2.transform.SetPositionAndRotation(new Vector3(829, 639, 0), Quaternion.identity);
+            ps2.transform.position = new Vector3(100, 390, 0);
             text_box.Add(ps2.GetComponent<Text>());
         }
         else
@@ -61,7 +61,7 @@ public class Main : MonoBehaviour {
             Tetris_Players.Add(new Player());
             GameObject ps1 = (GameObject)Instantiate(Play_Screen);
             ps1.transform.SetParent(canvas.transform);
-            ps1.transform.SetPositionAndRotation(new Vector3(629, 639, 0), Quaternion.identity);
+            ps1.transform.position = new Vector3(500, 390, 0);
             text_box.Add(ps1.GetComponent<Text>());
         }
 
