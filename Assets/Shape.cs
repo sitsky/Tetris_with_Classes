@@ -8,14 +8,10 @@ public class Shape {
     public enum Shape_choice : int { L = 1, J, I, O, S, Z, T };   
     public Shape_choice myshape;
 
-    //public enum Shape_Orientation : int { ZERO = 0, NINTY = 1, ONEEIGHTY = 2, TWOSEVENTY = 3 };
-    //public Shape_Orientation myorientation;
-
     
 
     public Shape()
     {
-        //myorientation = Shape_Orientation.ZERO;
         myshape = (Shape_choice)Random.Range(1, (int)Shape_choice.T);
         shape_parts = create_choice(myshape);
     }
@@ -80,7 +76,6 @@ public class Shape {
         else
         {
             Vector2 pivot = shape_parts[0].position;
-            //Debug.Log("pivot: " + pivot.ToString());
             for (int part_of_shape = 1; part_of_shape < shape_parts.Length; part_of_shape++)
             {
                 Vector2 direction_of_block = shape_parts[part_of_shape].position - pivot;
@@ -88,29 +83,9 @@ public class Shape {
                 rotated.x = direction_of_block.y;
                 rotated.y = -direction_of_block.x;
                 shape_parts[part_of_shape].position = rotated + pivot;
-               // Debug.Log("originalpart: " + part_of_shape.ToString());
+
             }
-            //Sample Code for Rotations if we need to adjust to look better.
-            /*if (myshape == Shape_choice.I)
-            {
-                if (myorientation == Shape_Orientation.NINTY)
-                {
-                    for (int part_of_shape = 0; part_of_shape < 4; part_of_shape++)
-                    {
-                        position[part_of_shape] += Vector2.left;
-                    }
-                }
-                else if (myorientation == Shape_Orientation.TWOSEVENTY)
-                {
-                    for (int part_of_shape = 0; part_of_shape < 4; part_of_shape++)
-                    {
-                        position[part_of_shape] += Vector2.right;
-                    }
-                }
-            }*/
         }
-        //myorientation++;
-        //if (myorientation > Shape_Orientation.TWOSEVENTY) myorientation = Shape_Orientation.ZERO;
     }
 
     public void Shape_rotate_clockwise()
