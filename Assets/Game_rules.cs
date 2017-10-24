@@ -162,6 +162,25 @@ public class Game_rules
             Current_Player.Player_Current_Shape = Current_Shape;
         }
     }
+
+    public void Move_down(Player Current_Player)
+    {
+        if (check_out_spawn_area(Current_Player))
+        {
+            Shape Current_Shape = Current_Player.Player_Current_Shape;
+            Current_Shape.Shape_move_down();
+            if (Check_For_NO_Room(Current_Player))
+            {
+                Current_Shape.Shape_move_up();
+            }
+            if (Check_For_Boundaries(Current_Player))
+            {
+                Current_Shape.Shape_move_up();
+            }
+            Current_Player.Player_Current_Shape = Current_Shape;
+        }
+    }
+
     public void Rotate_clock(Player Current_Player)
     {
         if (check_out_spawn_area(Current_Player))

@@ -7,7 +7,12 @@ using UnityEngine.Networking;
 using UnityEngine.Networking.NetworkSystem;
 
 
-public enum Motion_keys { left, right, up, down, space,  a, d, w, s, x};
+public enum Motion_keys : int { left, right, up, down, k, a, d, w, s, x };
+
+public static class Tetris_consts
+{
+    public const int keys_per_player = 5;
+}
 
 public class Main : MonoBehaviour {
 
@@ -34,14 +39,16 @@ public class Main : MonoBehaviour {
 
     //Switch on for 2 players
     public bool two_players;
-    public int keys_per_player = 5;
+    
 
     //List of players playing and List for their keys. 
     public List<Player> Tetris_Players = new List<Player>();
 
-    public Motion_keys[] Current_keys = new Motion_keys[5];
-    Game_rules Tetris_Rules = new Game_rules();
+    Motion_keys[] Current_keys = new Motion_keys[5];
 
+
+    Game_rules Tetris_Rules = new Game_rules();
+    
     //Networking
     public bool Network_Game = false; 
     public bool Set_As_Server;
@@ -54,8 +61,8 @@ public class Main : MonoBehaviour {
     const short client_key_presses = 1002;
     int server_generated_ids = 1;
 
-    void Start() {
 
+    void Start() {
         GameObject canvas = GameObject.Find("Canvas");
         Motion_keys last_given = Motion_keys.left;
 
@@ -107,8 +114,9 @@ public class Main : MonoBehaviour {
         foreach (Player Current_Player in Tetris_Players)
         {
             Give_Player_Keys(Current_Player, last_given);
-            last_given += keys_per_player;
-            if (last_given > (Motion_keys)(Tetris_Players.Count * keys_per_player)) last_given = Motion_keys.left;
+            last_given += Tetris_consts.keys_per_player;
+
+            if (last_given > (Motion_keys)(Tetris_Players.Count * Tetris_consts.keys_per_player)) last_given = Motion_keys.left;
 
             Current_Player.last_drop = 0;
             Current_Player.Player_Current_Shape = new Shape();
@@ -140,7 +148,7 @@ public class Main : MonoBehaviour {
     // client function
     public void OnConnected(NetworkMessage netMsg)
     {
-        Debug.Log("Connected to server");
+        Debug.Log("Client:Connected to server");
     }
     void ReceiveMyID(NetworkMessage netMsg)
     {
@@ -151,7 +159,7 @@ public class Main : MonoBehaviour {
     void OnClientKeyPress(NetworkMessage netMsg)
     {
         var beginMessage = netMsg.ReadMessage<IntegerMessage>();
-        Debug.Log("received OnClientKeyPress " + beginMessage.value);
+        Debug.Log("Server: received OnClientKeyPress " + beginMessage.value);
     }
 
     void giveIDs(NetworkMessage netMsg)
@@ -166,7 +174,6 @@ public class Main : MonoBehaviour {
         {
             GetPlayersKeys(Current_Player);
             Keypressing(Current_Player); //apply appropriate KeysReceived to the client in Tetris_Players
-
             if (Time.time - Current_Player.last_drop > Tetris_Rules.DropSpeed)
             {
                 //Send to Clients their data
@@ -232,22 +239,28 @@ public class Main : MonoBehaviour {
 
             }
         }
-        while (Input.GetKeyDown(Current_Player.mymotion[4].ToString()))
+        if(Input.GetKeyDown(Current_Player.mymotion[4].ToString()))
         {
-            Current_Player.Player_Current_Shape.Shape_move_down();
+            Tetris_Rules.Move_down(Current_Player);
+            if (Set_As_Remote) //Send to Server Key presses. Server Tetris_Players List is the valid copy.
+            {
+                var msg = new IntegerMessage(3);
+                myClient.Send(client_key_presses, msg);
+
+            }
         }
     }
 
     public void GetPlayersKeys(Player Current_Player)
     {
-        for (int keys = 0; keys < keys_per_player; keys++)
+        for (int keys = 0; keys < Tetris_consts.keys_per_player; keys++)
         {
-            Current_keys[keys] = Current_Player.mymotion[keys];
+            Current_keys[keys] =  Current_Player.mymotion[keys];
         }
     }
     public void Give_Player_Keys(Player Assign_Keys, Motion_keys last_given)
     {
-        for (int keys = 0; keys < keys_per_player; keys++)
+        for (int keys = 0; keys < Tetris_consts.keys_per_player; keys++)
         {
             Assign_Keys.mymotion[keys] = last_given + keys;
         }
@@ -263,6 +276,7 @@ public class Main : MonoBehaviour {
         temp_play_screen.transform.position = new Vector3(shift_text_boxes, player_text_shift_y, 0);
         text_box.Add(temp_play_screen.GetComponent<Text>());
     }
+
     public void Render_Player_Blocks() //TODO:spawn area
     {
         GameObject[] to_die = GameObject.FindGameObjectsWithTag("rendered_block");
