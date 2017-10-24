@@ -18,7 +18,6 @@ public class Game_rules
         Current_Player.Player_Current_Shape = Current_Player.Player_Next_Shape;
         Current_Player.Player_Next_Shape = new Shape();
     }
-
     public void Check_Lines(Player Current_Player)
     {
         if (check_out_spawn_area(Current_Player))
@@ -116,7 +115,6 @@ public class Game_rules
         }
         return false;
     }
-
     public bool Check_For_Boundaries(Player Current_Player)
     {
         if (check_out_spawn_area(Current_Player))
@@ -198,8 +196,7 @@ public class Game_rules
             Current_Player.Player_Current_Shape = Current_Shape;
         }
     }
-
-    bool check_out_spawn_area(Player Current_Player)
+    public bool check_out_spawn_area(Player Current_Player)
     {
         Shape Current_Shape = Current_Player.Player_Current_Shape;
         if (Current_Shape.shape_parts[0].position.y < -longest_shape)

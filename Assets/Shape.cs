@@ -7,17 +7,50 @@ public class Shape {
 
     public enum Shape_choice : int { L = 1, J, I, O, S, Z, T };   
     public Shape_choice myshape;
-
-    
+    public Color mycolor;
 
     public Shape()
     {
         myshape = (Shape_choice)Random.Range(1, (int)Shape_choice.T);
-        shape_parts = create_choice(myshape);
+        shape_parts = Create_choice(myshape);
+        mycolor = Shape_coloring(myshape);
+    }
+
+    public Color Shape_coloring(Shape_choice color_shape)
+    {
+        Color color_chosen;
+        switch(myshape)
+        {
+            case Shape_choice.L:
+                color_chosen = Color.blue;
+                break;
+            case Shape_choice.J:
+                color_chosen = Color.cyan;
+                break;
+            case Shape_choice.I:
+                color_chosen = Color.green;
+                break;
+            case Shape_choice.O:
+                color_chosen = Color.red;
+                break;
+            case Shape_choice.S:
+                color_chosen = Color.magenta;
+                break;
+            case Shape_choice.Z:
+                color_chosen = Color.yellow;
+                break;
+            case Shape_choice.T:
+                color_chosen = Color.white;
+                break;
+            default:
+                color_chosen = Color.gray;
+                break;
+        }
+        return color_chosen;
     }
 
 
-    public Block[] create_choice(Shape_choice make_shape)
+    public Block[] Create_choice(Shape_choice make_shape)
     {
         Block[] block_chosen = new Block[4];
         switch (make_shape)

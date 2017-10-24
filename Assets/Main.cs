@@ -11,11 +11,6 @@ public enum Motion_keys { left, right, up, down,  a, d, w, s};
 
 public class Main : MonoBehaviour {
 
-    //Play area
-
-
-
-
     //TXT translations to look nice
     int player_text_shift_x = 200;
     int next_player_text_shift_x = 400;
@@ -28,8 +23,10 @@ public class Main : MonoBehaviour {
 
     //Switch on for Rendering, Object for rendering, list to hold the blocks for rendering
     public bool Render_Switch;
+    public GameObject PlayArea3D;
     public GameObject block3D;
     List<GameObject> to_render = new List<GameObject>();
+    GameObject[] areas_to_render = new GameObject[2];
     int first_player_render_shift_x = 30;
     int next_player_render_separation = -60;
     int next_player_render_shift = 30;
@@ -44,12 +41,13 @@ public class Main : MonoBehaviour {
     public Motion_keys[] Current_keys = new Motion_keys[4];
     Game_rules Tetris_Rules = new Game_rules();
 
-    void Start() {
+    //Networking
+    public bool Network_Game;
+    public bool Set_As_Server;
+    public bool Set_As_Remote;
 
-        
-             
-        GameObject canvas = GameObject.Find("Canvas");
-        
+    void Start() {           
+        GameObject canvas = GameObject.Find("Canvas");       
         Motion_keys last_given = Motion_keys.left;
 
         if (two_players)
@@ -77,39 +75,23 @@ public class Main : MonoBehaviour {
         if (Render_Switch)
         {
             Destroy(canvas);
+            areas_to_render[0] = (Instantiate(PlayArea3D));
+            areas_to_render[1] = (Instantiate(PlayArea3D));
+            areas_to_render[1].transform.position = areas_to_render[0].transform.position + new Vector3(next_player_render_separation, 0, 0);
             Render_Player_Blocks();
         }
         else
         {
-            
-            Display();
+            TXT_Display();
         }               
     }
 
     // Update is called once per frame
     void Update() {
-        next_player_render_shift = first_player_render_shift_x;
         foreach (Player Current_Player in Tetris_Players)
         {
             GetPlayersShapes(Current_Player);
-
-            if (Input.GetKeyDown(Current_Player.mymotion[0].ToString()))
-            {
-                Tetris_Rules.Move_left(Current_Player);
-            }
-            if (Input.GetKeyDown(Current_Player.mymotion[1].ToString()))
-            {
-                Tetris_Rules.Move_right(Current_Player);
-            }
-            if (Input.GetKeyDown(Current_Player.mymotion[2].ToString()))
-            {
-                Tetris_Rules.Rotate_clock(Current_Player);
-            }
-            if (Input.GetKeyDown(Current_Player.mymotion[3].ToString()))
-            {
-                Tetris_Rules.Rotate_anti(Current_Player);
-            }
-
+            Keypressing(Current_Player);
             if (Time.time - Current_Player.last_drop > Tetris_Rules.DropSpeed)
             {
                 Current_Player.last_drop = Time.time;
@@ -129,32 +111,83 @@ public class Main : MonoBehaviour {
         }
         else
         {
-            Display();
-        }    
+            TXT_Display();
+        }
     }
 
-    public void Render_Player_Blocks()
+    public void Create_Player() //TODO: Move some TXT setup to TXT_Display()
+    {
+        int shift_text_boxes = player_text_shift_x - (text_box.Count - 1) * next_player_text_shift_x;
+        GameObject canvas = GameObject.Find("Canvas");
+        Tetris_Players.Add(new Player());
+        GameObject temp_play_screen = (GameObject)Instantiate(Play_Screen);
+        temp_play_screen.transform.SetParent(canvas.transform);
+        temp_play_screen.transform.position = new Vector3(shift_text_boxes, player_text_shift_y, 0);
+        text_box.Add(temp_play_screen.GetComponent<Text>());
+    }
+
+    void Keypressing(Player Current_Player)
+    {
+        if (Input.GetKeyDown(Current_Player.mymotion[0].ToString()))
+        {
+            Tetris_Rules.Move_left(Current_Player);
+        }
+        if (Input.GetKeyDown(Current_Player.mymotion[1].ToString()))
+        {
+            Tetris_Rules.Move_right(Current_Player);
+        }
+        if (Input.GetKeyDown(Current_Player.mymotion[2].ToString()))
+        {
+            Tetris_Rules.Rotate_clock(Current_Player);
+        }
+        if (Input.GetKeyDown(Current_Player.mymotion[3].ToString()))
+        {
+            Tetris_Rules.Rotate_anti(Current_Player);
+        }
+    }
+    public void GetPlayersShapes(Player Current_Player)
+    {
+        for (int keys = 0; keys < keys_per_player; keys++)
+        {
+            Current_keys[keys] = Current_Player.mymotion[keys];
+
+        }
+    }
+    public void Give_Player_Keys(Player Assign_Keys, Motion_keys last_given)
+    {
+        for (int keys = 0; keys < keys_per_player; keys++)
+        {
+            Assign_Keys.mymotion[keys] = last_given + keys;
+
+        }
+    }
+
+    public void Render_Player_Blocks() //TODO:spawn area
     {
         GameObject[] to_die = GameObject.FindGameObjectsWithTag("rendered_block");
         foreach (GameObject created_block in to_die) { Destroy(created_block); }
 
+        next_player_render_shift = first_player_render_shift_x;
         foreach (Player Current_Player in Tetris_Players)
         {
             next_player_render_shift += Tetris_Players.IndexOf(Current_Player) * next_player_render_separation;
             foreach (Shape shape_to_render in Current_Player.Active_Shapes)
-            {
+            { 
                 foreach (Block block_to_render in shape_to_render.shape_parts)
                 {
                     float temp_x = block_to_render.position.x + next_player_render_shift;
                     float temp_y = block_to_render.position.y + player_render_shift_y;
                     to_render.Add(Instantiate(block3D));
                     to_render[to_render.Count - 1].transform.position = new Vector3(temp_x, temp_y, 0);
+                    to_render[to_render.Count - 1].GetComponent<MeshRenderer>().material.color = shape_to_render.mycolor;
                 }
             }
-        }
+        }     
     }
-    public void Display()
+    public void TXT_Display()
     {
+        int y_shift_for_TXT = 29;
+        int x_shift_for_TXT = 1;
         foreach (Player Current_Player in Tetris_Players)
         {
             GetPlayersShapes(Current_Player);
@@ -163,8 +196,8 @@ public class Main : MonoBehaviour {
 
             for (int part_of_preview = 0; part_of_preview < Current_Player.Player_Blocks_in_Shape; part_of_preview++)
             {
-                int col = (int)Current_Player.Player_Next_Shape.shape_parts[part_of_preview].position.x + 1; //rendering +1 move
-                int row = (int)Current_Player.Player_Next_Shape.shape_parts[part_of_preview].position.y + 29; //rendering +29 move
+                int col = (int)Current_Player.Player_Next_Shape.shape_parts[part_of_preview].position.x + x_shift_for_TXT; //rendering +1 move
+                int row = (int)Current_Player.Player_Next_Shape.shape_parts[part_of_preview].position.y + y_shift_for_TXT; //rendering +29 move
                 the_game_view[col, row] = 1;
             }
 
@@ -196,34 +229,4 @@ public class Main : MonoBehaviour {
             text_box[Tetris_Players.IndexOf(Current_Player)].text = to_text_box;
         }
     }
-
-
-
-    public void Create_Player()
-    {
-        int shift_text_boxes = player_text_shift_x - (text_box.Count - 1) * next_player_text_shift_x;
-        GameObject canvas = GameObject.Find("Canvas");
-        Tetris_Players.Add(new Player());
-        GameObject temp_play_screen = (GameObject)Instantiate(Play_Screen);
-        temp_play_screen.transform.SetParent(canvas.transform);
-        temp_play_screen.transform.position = new Vector3(shift_text_boxes, player_text_shift_y, 0);
-        text_box.Add(temp_play_screen.GetComponent<Text>());
-    }
-    public void GetPlayersShapes(Player Current_Player)
-    {
-        for (int keys = 0; keys < keys_per_player; keys++)
-        {
-            Current_keys[keys] = Current_Player.mymotion[keys];
-
-        }
-    }
-    public void Give_Player_Keys(Player Assign_Keys, Motion_keys last_given)
-    {
-        for (int keys = 0; keys < keys_per_player; keys++)
-        {
-            Assign_Keys.mymotion[keys] = last_given + keys;
-
-        }
-    }
-
 }
