@@ -40,13 +40,9 @@ public class Main : MonoBehaviour {
     //Switch on for 2 players
     public bool two_players;
     
-
     //List of players playing and List for their keys. 
     public List<Player> Tetris_Players = new List<Player>();
-
     Motion_keys[] Current_keys = new Motion_keys[5];
-
-
     Game_rules Tetris_Rules = new Game_rules();
     
     //Networking
@@ -58,8 +54,101 @@ public class Main : MonoBehaviour {
     public int Server_Port = 4444;
 
     NetworkClient myClient;
-    const short client_key_presses = 1002;
-    int server_generated_ids = 1;
+    public const short client_key_presses = MsgType.Highest + 1;
+    public const short SendPlayer = MsgType.Highest + 2;
+    public const short Here_S_yourID = MsgType.Highest + 2;
+    int server_generated_ids = 0;
+
+    void Setup_server()
+    {
+        NetworkServer.Listen(Port_of_server);
+        NetworkServer.RegisterHandler(MsgType.Connect, giveIDs);
+        NetworkServer.RegisterHandler(client_key_presses, OnClientKeyPress);
+        /*
+        NetworkServer.RegisterHandler(MsgType.Error, Server_OnError);
+        NetworkServer.RegisterHandler(MsgType.Ready, Server_ClientReady);
+        NetworkServer.RegisterHandler(MsgType.Disconnect, Server_Client_Disconnect);
+        */
+    }
+    void giveIDs(NetworkMessage netMsg)
+    {
+        Create_Player(server_generated_ids);
+        Player_Data temp_Player = new Player_Data();
+        temp_Player.id = server_generated_ids;
+        temp_Player.you = Tetris_Players[Tetris_Players.Count - 1].Player_Current_Shape.shape_parts[0].position;
+        NetworkServer.SendToClient(server_generated_ids, Here_S_yourID, temp_Player);
+        server_generated_ids++;
+    }
+    void OnClientKeyPress(NetworkMessage netMsg)
+    {
+        KeyPressData client_press = netMsg.ReadMessage<KeyPressData>();
+        int client_send_Keypress_ID = client_press.id;
+
+        Motion_keys client_send_Keypress_key = (Motion_keys) client_press.pressed;
+        Player client_player = Tetris_Players[client_send_Keypress_ID];
+
+        if (client_send_Keypress_key.Equals(client_player.mymotion[0]))
+        {
+            Tetris_Rules.Move_left(client_player);
+        }
+        else if (client_send_Keypress_key.Equals(client_player.mymotion[1]))
+        {
+            Tetris_Rules.Move_right(client_player);
+        }
+        else if (client_send_Keypress_key.Equals(client_player.mymotion[2]))
+        {
+            Tetris_Rules.Rotate_clock(client_player);
+        }
+        else if (client_send_Keypress_key.Equals(client_player.mymotion[3]))
+        {
+            Tetris_Rules.Rotate_anti(client_player);
+        }
+        else if (client_send_Keypress_key.Equals(client_player.mymotion[4]))
+        {
+            Tetris_Rules.Move_down(client_player);
+        }
+        Debug.Log("Server: received OnClientKeyPress " + client_press.pressed);
+    }
+    private void Client_recieve_player(NetworkMessage netMsg)
+    {
+        Player_Data tick_data = netMsg.ReadMessage<Player_Data>();
+        Tetris_Players[0].Player_Current_Shape.shape_parts[0].position = tick_data.you;
+    }
+
+    void Getting_my_ID(NetworkMessage netMsg)
+    {
+        Player_Data temp_player = new Player_Data();
+        temp_player = netMsg.ReadMessage<Player_Data>();
+        Create_Player(temp_player.id);
+    }
+
+    /*private void Server_ClientReady(NetworkMessage netMsg)
+    {
+        Debug.Log("[SERVER]: A client is ready.");
+        NetworkServer.SetClientReady(netMsg.conn);
+        ++server_generated_ids;
+    }*/
+
+    void Setup_Client()
+    {
+        myClient = new NetworkClient();
+        //myClient.RegisterHandler(MsgType.Connect, Client_OnConnected);
+        //myClient.RegisterHandler(MsgType.Error, Client_OnError);
+        myClient.RegisterHandler(SendPlayer, Client_recieve_player);
+        myClient.RegisterHandler(Here_S_yourID, Getting_my_ID);
+        myClient.Connect(Server_IP, Server_Port);
+    }
+    class KeyPressData : MessageBase
+    {
+        public int id;
+        public int pressed;
+    }
+
+    class Player_Data : MessageBase
+    {
+        public int id;
+        public Vector2 you;
+    }
 
 
     void Start() {
@@ -70,21 +159,14 @@ public class Main : MonoBehaviour {
         {
             if (Set_As_Server) 
             {
-                NetworkServer.Listen(Port_of_server);
-                NetworkServer.RegisterHandler(MsgType.Connect, giveIDs);
-                NetworkServer.RegisterHandler(client_key_presses, OnClientKeyPress);
+                Setup_server();
                 myClient = ClientScene.ConnectLocalServer();
-                myClient.RegisterHandler(MsgType.Connect, OnConnected);
             }
             if (Set_As_Remote)
             {
                 for (int i = 0; i < 2; i++)
                 {
-                    myClient = new NetworkClient();
-                    myClient.RegisterHandler(MsgType.Connect, OnConnected);
-                    myClient.RegisterHandler(MsgType.AddPlayer, ReceiveMyID);
-                    myClient.Connect(Server_IP, Port_of_server);
-                    
+                    Setup_Client();
                 }
             }
         }
@@ -101,7 +183,6 @@ public class Main : MonoBehaviour {
                 Create_Player(0);
             }
         }
-
         if (Set_As_Server)
         {
             foreach (NetworkConnection tetris_client in NetworkServer.connections)
@@ -145,28 +226,7 @@ public class Main : MonoBehaviour {
     }
 
 
-    // client function
-    public void OnConnected(NetworkMessage netMsg)
-    {
-        Debug.Log("Client:Connected to server");
-    }
-    void ReceiveMyID(NetworkMessage netMsg)
-    {
-        var playerID = netMsg.ReadMessage<IntegerMessage>();
-        Create_Player(playerID.value);
-    }
-    //server handler
-    void OnClientKeyPress(NetworkMessage netMsg)
-    {
-        var beginMessage = netMsg.ReadMessage<IntegerMessage>();
-        Debug.Log("Server: received OnClientKeyPress " + beginMessage.value);
-    }
 
-    void giveIDs(NetworkMessage netMsg)
-    {
-        server_generated_ids++;
-
-    }
 
     // Update is called once per frame
     void Update() {
@@ -176,7 +236,14 @@ public class Main : MonoBehaviour {
             Keypressing(Current_Player); //apply appropriate KeysReceived to the client in Tetris_Players
             if (Time.time - Current_Player.last_drop > Tetris_Rules.DropSpeed)
             {
-                //Send to Clients their data
+                if (Set_As_Server)
+                {
+                    Player_Data tempPlayer = new Player_Data();
+                    tempPlayer.id = Current_Player.netID;
+                    tempPlayer.you = Current_Player.Player_Current_Shape.shape_parts[0].position;
+                    NetworkServer.SendToClient(Current_Player.netID, SendPlayer, tempPlayer);
+                }
+
                 Current_Player.last_drop = Time.time;
                 Current_Player.Player_Current_Shape.Shape_move_down();
                 if (Tetris_Rules.Check_For_NO_Room(Current_Player))
@@ -204,9 +271,10 @@ public class Main : MonoBehaviour {
             Tetris_Rules.Move_left(Current_Player);
             if (Set_As_Remote) //Send to Server Key presses. Server Tetris_Players List is the valid copy.
             {
-                var msg = new IntegerMessage(0);
-                myClient.Send(client_key_presses, msg);
-
+                KeyPressData temp = new KeyPressData();
+                temp.id = Current_Player.netID;
+                temp.pressed = (int)Current_Player.mymotion[0];
+                myClient.Send(client_key_presses, temp);
             }
         }
         if (Input.GetKeyDown(Current_Player.mymotion[1].ToString()))
@@ -214,9 +282,10 @@ public class Main : MonoBehaviour {
             Tetris_Rules.Move_right(Current_Player);
             if (Set_As_Remote) //Send to Server Key presses. Server Tetris_Players List is the valid copy.
             {
-                var msg = new IntegerMessage(1);
-                myClient.Send(client_key_presses, msg);
-
+                KeyPressData temp = new KeyPressData();
+                temp.id = Current_Player.netID;
+                temp.pressed = (int)Current_Player.mymotion[1];
+                myClient.Send(client_key_presses, temp);
             }
         }
         if (Input.GetKeyDown(Current_Player.mymotion[2].ToString()))
@@ -224,19 +293,20 @@ public class Main : MonoBehaviour {
             Tetris_Rules.Rotate_clock(Current_Player);
             if (Set_As_Remote) //Send to Server Key presses. Server Tetris_Players List is the valid copy.
             {
-                var msg = new IntegerMessage(2);
-                myClient.Send(client_key_presses, msg);
-
+                KeyPressData temp = new KeyPressData();
+                temp.id = Current_Player.netID;
+                temp.pressed = (int)Current_Player.mymotion[2];
+                myClient.Send(client_key_presses, temp);
             }
         }
         if (Input.GetKeyDown(Current_Player.mymotion[3].ToString()))
         {
-            Tetris_Rules.Rotate_anti(Current_Player);
             if (Set_As_Remote) //Send to Server Key presses. Server Tetris_Players List is the valid copy.
             {
-                var msg = new IntegerMessage(3);
-                myClient.Send(client_key_presses, msg);
-
+                KeyPressData temp = new KeyPressData();
+                temp.id = Current_Player.netID;
+                temp.pressed = (int)Current_Player.mymotion[3];
+                myClient.Send(client_key_presses, temp);
             }
         }
         if(Input.GetKeyDown(Current_Player.mymotion[4].ToString()))
@@ -244,9 +314,10 @@ public class Main : MonoBehaviour {
             Tetris_Rules.Move_down(Current_Player);
             if (Set_As_Remote) //Send to Server Key presses. Server Tetris_Players List is the valid copy.
             {
-                var msg = new IntegerMessage(3);
-                myClient.Send(client_key_presses, msg);
-
+                KeyPressData temp = new KeyPressData();
+                temp.id = Current_Player.netID;
+                temp.pressed = (int)Current_Player.mymotion[4];
+                myClient.Send(client_key_presses, temp);
             }
         }
     }
@@ -276,7 +347,6 @@ public class Main : MonoBehaviour {
         temp_play_screen.transform.position = new Vector3(shift_text_boxes, player_text_shift_y, 0);
         text_box.Add(temp_play_screen.GetComponent<Text>());
     }
-
     public void Render_Player_Blocks() //TODO:spawn area
     {
         GameObject[] to_die = GameObject.FindGameObjectsWithTag("rendered_block");
