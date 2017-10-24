@@ -44,11 +44,12 @@ public class Main : MonoBehaviour {
     //Networking
     public bool Network_Game = false; 
     public bool Set_As_Server;
-    public int Port_of_server;
+    public int Port_of_server = 4444;
     public bool Set_As_Remote;
-    public string Server_IP;
-    public int Server_Port;
+    public string Server_IP = "127.0.0.1";
+    public int Server_Port = 4444;
 
+    NetworkClient myClient;
 
     void Start() {
 
@@ -57,14 +58,19 @@ public class Main : MonoBehaviour {
 
         if (Network_Game) //call network setup functions
         {
-            Network_Game = false; //Till implement
             if (Set_As_Server) 
-            { }
+            {
+                NetworkServer.Listen(Port_of_server);
+                myClient = ClientScene.ConnectLocalServer();
+                myClient.RegisterHandler(MsgType.Connect, OnConnected);
+            }
             if (Set_As_Remote)
-            { }
-            //create players based on clients
-            //server full Tetris_Player list
-            //Clients 1 player list
+            {
+                myClient = new NetworkClient();
+                myClient.RegisterHandler(MsgType.Connect, OnConnected);
+                myClient.Connect(Server_IP, Port_of_server);
+                Create_Player();
+            }
         }
         else
         {
@@ -77,6 +83,10 @@ public class Main : MonoBehaviour {
             {
                 Create_Player();
             }
+        }
+        foreach (NetworkConnection tetris_client in NetworkServer.connections)
+        {
+            Create_Player();
         }
         foreach (Player Current_Player in Tetris_Players)
         {
@@ -101,7 +111,14 @@ public class Main : MonoBehaviour {
         else
         {
             TXT_Display();
-        }               
+        }
+        Debug.Log(NetworkServer.connections.Count.ToString());
+    }
+
+    // client function
+    public void OnConnected(NetworkMessage netMsg)
+    {
+        Debug.Log("Connected to server");
     }
 
     // Update is called once per frame
