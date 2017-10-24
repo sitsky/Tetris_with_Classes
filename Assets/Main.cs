@@ -31,6 +31,7 @@ public class Main : MonoBehaviour {
     int next_player_render_separation = -60;
     int next_player_render_shift = 30;
     int player_render_shift_y = 20;
+    int next_piece_render_shift = 5;
 
     //Switch on for 2 players
     public bool two_players;
@@ -171,7 +172,16 @@ public class Main : MonoBehaviour {
         foreach (Player Current_Player in Tetris_Players)
         {
             next_player_render_shift += Tetris_Players.IndexOf(Current_Player) * next_player_render_separation;
-            foreach (Shape shape_to_render in Current_Player.Active_Shapes)
+            foreach (Block block_to_render in Current_Player.Player_Next_Shape.shape_parts)
+            {
+                float temp_x = block_to_render.position.x + next_player_render_shift - next_piece_render_shift;
+                float temp_y = block_to_render.position.y + player_render_shift_y + next_piece_render_shift;
+                to_render.Add(Instantiate(block3D));
+                to_render[to_render.Count - 1].transform.position = new Vector3(temp_x, temp_y, 0);
+                to_render[to_render.Count - 1].GetComponent<MeshRenderer>().material.color = Current_Player.Player_Next_Shape.mycolor;
+            }
+
+                foreach (Shape shape_to_render in Current_Player.Active_Shapes)
             { 
                 foreach (Block block_to_render in shape_to_render.shape_parts)
                 {
