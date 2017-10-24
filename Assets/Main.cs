@@ -20,7 +20,6 @@ public class Main : MonoBehaviour {
     public GameObject Play_Screen;
     List<Text> text_box = new List<Text>();
     
-
     //Switch on for Rendering, Object for rendering, list to hold the blocks for rendering
     public bool Render_Switch;
     public GameObject PlayArea3D;
@@ -43,24 +42,42 @@ public class Main : MonoBehaviour {
     Game_rules Tetris_Rules = new Game_rules();
 
     //Networking
-    public bool Network_Game;
+    public bool Network_Game = false; 
     public bool Set_As_Server;
+    public int Port_of_server;
     public bool Set_As_Remote;
+    public string Server_IP;
+    public int Server_Port;
 
-    void Start() {           
-        GameObject canvas = GameObject.Find("Canvas");       
+
+    void Start() {
+
+        GameObject canvas = GameObject.Find("Canvas");
         Motion_keys last_given = Motion_keys.left;
 
-        if (two_players)
+        if (Network_Game) //call network setup functions
         {
-            Create_Player();
-            Create_Player();
+            Network_Game = false; //Till implement
+            if (Set_As_Server) 
+            { }
+            if (Set_As_Remote)
+            { }
+            //create players based on clients
+            //server full Tetris_Player list
+            //Clients 1 player list
         }
         else
         {
-            Create_Player();
+            if (two_players)
+            {
+                Create_Player();
+                Create_Player();
+            }
+            else
+            {
+                Create_Player();
+            }
         }
-
         foreach (Player Current_Player in Tetris_Players)
         {
             Give_Player_Keys(Current_Player, last_given);
@@ -91,20 +108,21 @@ public class Main : MonoBehaviour {
     void Update() {
         foreach (Player Current_Player in Tetris_Players)
         {
-            GetPlayersShapes(Current_Player);
-            Keypressing(Current_Player);
+            GetPlayersKeys(Current_Player);
+            Keypressing(Current_Player); //apply appropriate KeysReceived to the client in Tetris_Players
+
             if (Time.time - Current_Player.last_drop > Tetris_Rules.DropSpeed)
             {
+                //Send to Clients their data
                 Current_Player.last_drop = Time.time;
                 Current_Player.Player_Current_Shape.Shape_move_down();
-
                 if (Tetris_Rules.Check_For_NO_Room(Current_Player))
                 {
                     Current_Player.Player_Current_Shape.Shape_move_up();
                     Tetris_Rules.Check_Lines(Current_Player);
                     Tetris_Rules.Make_new_process(Current_Player);
                 }
-            }
+            }           
         }
         if (Render_Switch)
         {
@@ -116,19 +134,16 @@ public class Main : MonoBehaviour {
         }
     }
 
-    public void Create_Player() //TODO: Move some TXT setup to TXT_Display()
-    {
-        int shift_text_boxes = player_text_shift_x - (text_box.Count - 1) * next_player_text_shift_x;
-        GameObject canvas = GameObject.Find("Canvas");
-        Tetris_Players.Add(new Player());
-        GameObject temp_play_screen = (GameObject)Instantiate(Play_Screen);
-        temp_play_screen.transform.SetParent(canvas.transform);
-        temp_play_screen.transform.position = new Vector3(shift_text_boxes, player_text_shift_y, 0);
-        text_box.Add(temp_play_screen.GetComponent<Text>());
-    }
-
     void Keypressing(Player Current_Player)
     {
+        if (Network_Game)
+        {
+            Network_Game = false; //Till implement
+            if (Set_As_Server)
+            { }
+            if (Set_As_Remote) //Send to Server Key presses. Server Tetris_Players List is the valid copy.
+            { }
+        }
         if (Input.GetKeyDown(Current_Player.mymotion[0].ToString()))
         {
             Tetris_Rules.Move_left(Current_Player);
@@ -146,7 +161,8 @@ public class Main : MonoBehaviour {
             Tetris_Rules.Rotate_anti(Current_Player);
         }
     }
-    public void GetPlayersShapes(Player Current_Player)
+
+    public void GetPlayersKeys(Player Current_Player)
     {
         for (int keys = 0; keys < keys_per_player; keys++)
         {
@@ -162,7 +178,16 @@ public class Main : MonoBehaviour {
 
         }
     }
-
+    public void Create_Player() //TODO: Move some TXT setup to TXT_Display()
+    {
+        int shift_text_boxes = player_text_shift_x - (text_box.Count - 1) * next_player_text_shift_x;
+        GameObject canvas = GameObject.Find("Canvas");
+        Tetris_Players.Add(new Player());
+        GameObject temp_play_screen = (GameObject)Instantiate(Play_Screen);
+        temp_play_screen.transform.SetParent(canvas.transform);
+        temp_play_screen.transform.position = new Vector3(shift_text_boxes, player_text_shift_y, 0);
+        text_box.Add(temp_play_screen.GetComponent<Text>());
+    }
     public void Render_Player_Blocks() //TODO:spawn area
     {
         GameObject[] to_die = GameObject.FindGameObjectsWithTag("rendered_block");
@@ -196,11 +221,12 @@ public class Main : MonoBehaviour {
     }
     public void TXT_Display()
     {
+
         int y_shift_for_TXT = 29;
         int x_shift_for_TXT = 1;
         foreach (Player Current_Player in Tetris_Players)
         {
-            GetPlayersShapes(Current_Player);
+            GetPlayersKeys(Current_Player);
             string to_text_box = "";
             int[,] the_game_view = new int[13, 30];
 
