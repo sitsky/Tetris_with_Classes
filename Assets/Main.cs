@@ -43,8 +43,12 @@ public class Main : MonoBehaviour {
     //List of players playing and List for their keys. 
     public List<Player> Tetris_Players = new List<Player>();
     Motion_keys[] Current_keys = new Motion_keys[5];
+    Motion_keys last_given = Motion_keys.left;
     Game_rules Tetris_Rules = new Game_rules();
-    
+
+    List<Player> Client_PLayers = new List<Player>();
+    List<Player> Server_Players = new List<Player>();
+
     //Networking
     public bool Network_Game = false; 
     public bool Set_As_Server;
@@ -57,8 +61,16 @@ public class Main : MonoBehaviour {
     public NetworkClient localClient;
     public const short client_key_presses = MsgType.Highest + 1;
     public const short SendPlayers = MsgType.Highest + 2;
+    public const short RecieveShape = MsgType.Highest + 3;
     int server_generated_ids = 0;
     int client_count = 0;
+    class KeyPressData : MessageBase
+    {
+        public int id;
+        public int pressed;
+        public int player_count;
+    }
+
 
     void Setup_server()
     {
@@ -68,28 +80,27 @@ public class Main : MonoBehaviour {
         NetworkServer.RegisterHandler(client_key_presses, OnClientKeyPress);
         NetworkServer.RegisterHandler(SendPlayers, how_many_you_got);
     }
+
     private void how_many_you_got(NetworkMessage netMsg)
     {
         KeyPressData get_p_count = netMsg.ReadMessage<KeyPressData>();
-        Debug.Log(get_p_count.player_count.ToString());
+        Debug.Log("Server: Client claims to have: " + get_p_count.player_count.ToString());
+        Server_Players.Add(Create_Player());
+        Debug.Log("Server: " + Server_Players.Count.ToString());
     }
     private void How_many_clients(NetworkMessage netMsg)
     {
-        KeyPressData player_count = netMsg.ReadMessage<KeyPressData>();
-
         client_count++;
-        Debug.Log("Server: I got " + client_count.ToString() + " clients connected. PC: " + player_count.player_count.ToString());
     }
     void giveIDs(NetworkMessage netMsg)
     {
         KeyPressData here_is_your_ID = new KeyPressData();
         here_is_your_ID.id = server_generated_ids;
         here_is_your_ID.pressed = 0;
-        NetworkServer.SendToClient(server_generated_ids, MsgType.Ready, here_is_your_ID);
+        NetworkServer.SendToClient(server_generated_ids, SendPlayers, here_is_your_ID);
         server_generated_ids++;
-        Create_Player(server_generated_ids);
-        Debug.Log("Players in Server List: " + Tetris_Players.Count.ToString() + " IDs:" + server_generated_ids.ToString());
     }
+
     void OnClientKeyPress(NetworkMessage netMsg)
     {
         KeyPressData client_press = netMsg.ReadMessage<KeyPressData>();
@@ -120,52 +131,43 @@ public class Main : MonoBehaviour {
         }
         Debug.Log("Server: received OnClientKeyPress " + client_press.pressed);
     }
+    void Insert_my_new_Shape(NetworkMessage netMsg)
+    { }
 
     void Setup_Client()
     {
         myClient = new NetworkClient();
-        myClient.RegisterHandler(MsgType.Ready, Getting_my_ID);
-        myClient.Connect(Server_IP, Server_Port);
-        Create_Player(0);
+        myClient.RegisterHandler(MsgType.Connect, say_when);
+        myClient.RegisterHandler(SendPlayers, Getting_my_ID);
+        myClient.RegisterHandler(RecieveShape, Insert_my_new_Shape);
+        myClient.Connect(Server_IP, Server_Port);       
     }
-
+    void say_when(NetworkMessage netMsg)
+    {
+        Debug.Log("Client: I am connected.");  
+    }
     void Getting_my_ID(NetworkMessage netMsg)
     {
-        KeyPressData temp_data = new KeyPressData();
-        temp_data = netMsg.ReadMessage<KeyPressData>();
-        //Create_Player(temp_data.id);
+        Debug.Log("Client: I am Ready.");
+        ClientScene.Ready(netMsg.conn);
+        Client_PLayers.Add(Create_Player());
+        Debug.Log("Client: I created a player here.");
+        KeyPressData players_here = new KeyPressData();
+        players_here.player_count = Client_PLayers.Count;
+        myClient.Send(SendPlayers, players_here);
     }
-    class KeyPressData : MessageBase
-    {
-        public int id;
-        public int pressed;
-        public int player_count;
-    }
-
 
     void Start() {
-        GameObject canvas = GameObject.Find("Canvas");
-        Motion_keys last_given = Motion_keys.left;
-
         if (Network_Game) //call network setup functions
         {
             if (Set_As_Server) 
             {
                 Setup_server();
                 localClient = ClientScene.ConnectLocalServer();
-                KeyPressData players_here = new KeyPressData();
-                
-                players_here.player_count = Tetris_Players.Count;
-                localClient.Send(MsgType.Ready, players_here);
             }
             if (Set_As_Remote)
             {
-              //for (int i = 0; i < 2; i++)
-              //  {}
-                    Setup_Client();
-                KeyPressData players_here = new KeyPressData();
-                players_here.player_count = Tetris_Players.Count;
-                myClient.Send(MsgType.Ready, players_here);                
+                Setup_Client();             
             }
         }
         else
@@ -173,53 +175,47 @@ public class Main : MonoBehaviour {
             Debug.Log("Local run");
             if (two_players)
             {
-                Create_Player(0);
-                Create_Player(0);
+                Tetris_Players.Add(Create_Player());
+                Tetris_Players.Add(Create_Player());
             }
             else
             {
-                Create_Player(0);
+                Tetris_Players.Add(Create_Player());
             }
-        }
-        foreach (Player Current_Player in Tetris_Players)
-        {
-            if (Network_Game)
-            {
-                if (Current_Player.Equals(Tetris_Players[Tetris_Players.Count - 1]))
-                {
-                    Give_Player_Keys(Current_Player, last_given);
-                }
-            }
-            else
-            {
-                Give_Player_Keys(Current_Player, last_given);
-            }
-
-            last_given += Tetris_consts.keys_per_player;
-            if (last_given > (Motion_keys)(Tetris_Players.Count * Tetris_consts.keys_per_player)) last_given = Motion_keys.left;
-
-            Current_Player.last_drop = 0;
-            Current_Player.Player_Current_Shape = new Shape();
-            Current_Player.Player_Blocks_in_Shape = Current_Player.Player_Current_Shape.shape_parts.Length;
-            Current_Player.Active_Shapes.Add(Current_Player.Player_Current_Shape);
-            Current_Player.Player_Next_Shape = new Shape();
-        }
-        if (Render_Switch)
-        {
-            Destroy(canvas);
-            areas_to_render[0] = (Instantiate(PlayArea3D));
-            areas_to_render[1] = (Instantiate(PlayArea3D));
-            areas_to_render[1].transform.position = areas_to_render[0].transform.position + new Vector3(next_player_render_separation, 0, 0);
-            Render_Player_Blocks();
-        }
-        else
-        {
-            TXT_Display();
+            SetupPlayers_and_Visuals_Local();
         }
     }
 
     // Update is called once per frame
     void Update() {
+        if (Network_Game)
+        {
+            while (Time.time - 5 < 0)
+            {
+                if (Set_As_Server)
+                {
+                    Tetris_Players = Server_Players;
+                }
+                if (Set_As_Remote)
+                {
+                    Tetris_Players = Client_PLayers;
+                }
+            }
+            if (Render_Switch)
+            {
+                GameObject canvas = GameObject.Find("Canvas");
+                Destroy(canvas);
+                areas_to_render[0] = (Instantiate(PlayArea3D));
+                areas_to_render[1] = (Instantiate(PlayArea3D));
+                areas_to_render[1].transform.position = areas_to_render[0].transform.position + new Vector3(next_player_render_separation, 0, 0);
+                Render_Player_Blocks();
+            }
+            else
+            {
+                TXT_Display();
+            }
+        }
+
         foreach (Player Current_Player in Tetris_Players)
         {
             
@@ -228,7 +224,8 @@ public class Main : MonoBehaviour {
 
             if (Time.time - Current_Player.last_drop > Tetris_Rules.DropSpeed)
             {
-                Debug.Log(Current_Player.Player_Current_Shape.ToString());
+                Debug.Log("Codesay player count: " + Tetris_Players.IndexOf(Current_Player));
+                Debug.Log("Codesay shape count: " + Current_Player.Player_Current_Shape.shape_parts.Length.ToString());
                 Current_Player.last_drop = Time.time;
                 Current_Player.Player_Current_Shape.Shape_move_down();
                 if (Tetris_Rules.Check_For_NO_Room(Current_Player))
@@ -308,7 +305,6 @@ public class Main : MonoBehaviour {
             Current_keys[keys] =  Current_Player.mymotion[keys];
         }
     }
-
     public void Give_Player_Keys(Player Assign_Keys, Motion_keys last_given)
     {
         for (int keys = 0; keys < Tetris_consts.keys_per_player; keys++)
@@ -317,17 +313,45 @@ public class Main : MonoBehaviour {
         }
     }
 
-    public void Create_Player(int network_ID) //TODO: Move some TXT setup to TXT_Display()
+    public Player Create_Player() //TODO: Move some TXT setup to TXT_Display()
     {
-
-        int shift_text_boxes = player_text_shift_x - (text_box.Count - 1) * next_player_text_shift_x;
-        GameObject canvas = GameObject.Find("Canvas");
-        Tetris_Players.Add(new Player(network_ID));
-        GameObject temp_play_screen = (GameObject)Instantiate(Play_Screen);
-        temp_play_screen.transform.SetParent(canvas.transform);
-        temp_play_screen.transform.position = new Vector3(shift_text_boxes, player_text_shift_y, 0);
-        text_box.Add(temp_play_screen.GetComponent<Text>());
+        Player new_player = new Player();
+        new_player.last_drop = 0;
+        new_player.Player_Current_Shape = new Shape();
+        new_player.Player_Blocks_in_Shape = new_player.Player_Current_Shape.shape_parts.Length;
+        new_player.Active_Shapes.Add(new_player.Player_Current_Shape);
+        new_player.Player_Next_Shape = new Shape();
+        Give_Player_Keys(new_player, 0);
+        return new_player;
     }
+
+    void SetupPlayers_and_Visuals_Local()
+    {
+        Debug.Log("1 :" + Tetris_Players.Count.ToString());
+        foreach (Player Current_Player in Tetris_Players)
+        {
+            Give_Player_Keys(Current_Player, last_given);
+
+            last_given += Tetris_consts.keys_per_player;
+            if (last_given > (Motion_keys)(Tetris_Players.Count * Tetris_consts.keys_per_player)) last_given = Motion_keys.left;
+
+            Debug.Log("2 :" + Tetris_Players.Count.ToString());
+        }
+        if (Render_Switch)
+        {
+            GameObject canvas = GameObject.Find("Canvas");
+            Destroy(canvas);
+            areas_to_render[0] = (Instantiate(PlayArea3D));
+            areas_to_render[1] = (Instantiate(PlayArea3D));
+            areas_to_render[1].transform.position = areas_to_render[0].transform.position + new Vector3(next_player_render_separation, 0, 0);
+            Render_Player_Blocks();
+        }
+        else
+        {
+            TXT_Display();
+        }
+    }
+
     public void Render_Player_Blocks() //TODO:spawn area
     {
         GameObject[] to_die = GameObject.FindGameObjectsWithTag("rendered_block");
@@ -361,6 +385,12 @@ public class Main : MonoBehaviour {
     }
     public void TXT_Display()
     {
+        int shift_text_boxes = player_text_shift_x - (text_box.Count - 1) * next_player_text_shift_x;
+        GameObject canvas = GameObject.Find("Canvas");
+        GameObject temp_play_screen = (GameObject)Instantiate(Play_Screen);
+        temp_play_screen.transform.SetParent(canvas.transform);
+        temp_play_screen.transform.position = new Vector3(shift_text_boxes, player_text_shift_y, 0);
+        text_box.Add(temp_play_screen.GetComponent<Text>());
 
         int y_shift_for_TXT = 29;
         int x_shift_for_TXT = 1;
