@@ -228,6 +228,7 @@ public class Main : MonoBehaviour {
             if (Set_As_Server)
             {
                 Tetris_Players = Server_Players;
+                TXT_Setup();
             }
             if (Set_As_Remote)
             {
@@ -241,6 +242,7 @@ public class Main : MonoBehaviour {
 
         if (Tetris_Players.Count > 0)
         {
+            if(Tetris_Players.Count > 1) Network_Game = false;
             foreach (Player Current_Player in Tetris_Players)
             {
                 GetPlayersKeys(Current_Player);
