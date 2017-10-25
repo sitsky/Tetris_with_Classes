@@ -177,12 +177,30 @@ public class Main : MonoBehaviour {
             {
                 Tetris_Players.Add(Create_Player());
                 Tetris_Players.Add(Create_Player());
+                foreach (Player Current_Player in Tetris_Players)
+                {
+                    Give_Player_Keys(Current_Player, last_given);
+                    last_given += Tetris_consts.keys_per_player;
+                    if (last_given > (Motion_keys)(Tetris_Players.Count * Tetris_consts.keys_per_player)) last_given = Motion_keys.left;
+                }
             }
             else
             {
                 Tetris_Players.Add(Create_Player());
             }
-            SetupPlayers_and_Visuals_Local();
+        }
+        if (Render_Switch)
+        {
+            GameObject canvas = GameObject.Find("Canvas");
+            Destroy(canvas);
+            areas_to_render[0] = (Instantiate(PlayArea3D));
+            areas_to_render[1] = (Instantiate(PlayArea3D));
+            areas_to_render[1].transform.position = areas_to_render[0].transform.position + new Vector3(next_player_render_separation, 0, 0);
+            Render_Player_Blocks();
+        }
+        else
+        {
+            TXT_Display();
         }
     }
 
@@ -190,29 +208,17 @@ public class Main : MonoBehaviour {
     void Update() {
         if (Network_Game)
         {
-            while (Time.time - 5 < 0)
+            if (Set_As_Server)
             {
-                if (Set_As_Server)
-                {
-                    Tetris_Players = Server_Players;
-                }
-                if (Set_As_Remote)
-                {
-                    Tetris_Players = Client_PLayers;
-                }
+                Tetris_Players = Server_Players;
             }
-            if (Render_Switch)
+            if (Set_As_Remote)
             {
-                GameObject canvas = GameObject.Find("Canvas");
-                Destroy(canvas);
-                areas_to_render[0] = (Instantiate(PlayArea3D));
-                areas_to_render[1] = (Instantiate(PlayArea3D));
-                areas_to_render[1].transform.position = areas_to_render[0].transform.position + new Vector3(next_player_render_separation, 0, 0);
-                Render_Player_Blocks();
+                Tetris_Players = Client_PLayers;
             }
-            else
+            if ( (Set_As_Remote) && (Set_As_Server))
             {
-                TXT_Display();
+                Tetris_Players = Server_Players;
             }
         }
 
@@ -224,8 +230,8 @@ public class Main : MonoBehaviour {
 
             if (Time.time - Current_Player.last_drop > Tetris_Rules.DropSpeed)
             {
-                Debug.Log("Codesay player count: " + Tetris_Players.IndexOf(Current_Player));
-                Debug.Log("Codesay shape count: " + Current_Player.Player_Current_Shape.shape_parts.Length.ToString());
+               // Debug.Log("Codesay player count: " + Tetris_Players.IndexOf(Current_Player));
+              //  Debug.Log("Codesay shape count: " + Current_Player.Player_Current_Shape.shape_parts.Length.ToString());
                 Current_Player.last_drop = Time.time;
                 Current_Player.Player_Current_Shape.Shape_move_down();
                 if (Tetris_Rules.Check_For_NO_Room(Current_Player))
@@ -323,33 +329,6 @@ public class Main : MonoBehaviour {
         new_player.Player_Next_Shape = new Shape();
         Give_Player_Keys(new_player, 0);
         return new_player;
-    }
-
-    void SetupPlayers_and_Visuals_Local()
-    {
-        Debug.Log("1 :" + Tetris_Players.Count.ToString());
-        foreach (Player Current_Player in Tetris_Players)
-        {
-            Give_Player_Keys(Current_Player, last_given);
-
-            last_given += Tetris_consts.keys_per_player;
-            if (last_given > (Motion_keys)(Tetris_Players.Count * Tetris_consts.keys_per_player)) last_given = Motion_keys.left;
-
-            Debug.Log("2 :" + Tetris_Players.Count.ToString());
-        }
-        if (Render_Switch)
-        {
-            GameObject canvas = GameObject.Find("Canvas");
-            Destroy(canvas);
-            areas_to_render[0] = (Instantiate(PlayArea3D));
-            areas_to_render[1] = (Instantiate(PlayArea3D));
-            areas_to_render[1].transform.position = areas_to_render[0].transform.position + new Vector3(next_player_render_separation, 0, 0);
-            Render_Player_Blocks();
-        }
-        else
-        {
-            TXT_Display();
-        }
     }
 
     public void Render_Player_Blocks() //TODO:spawn area
