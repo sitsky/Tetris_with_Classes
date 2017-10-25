@@ -192,7 +192,6 @@ public class Game_rules
         if (check_out_spawn_area(Current_Player))
         {
             Shape Current_Shape = Current_Player.Player_Current_Shape;
-            Debug.Log(Current_Shape.myorientation.ToString());
             Current_Shape.Shape_rotate_anticlockwise();
             if (Check_For_NO_Room(Current_Player))
             {
@@ -203,7 +202,6 @@ public class Game_rules
                 Current_Shape.Shape_rotate_clockwise();
             }
             Current_Player.Player_Current_Shape = Current_Shape;
-            Debug.Log(Current_Shape.myorientation.ToString());
         }
     }
     public void Rotate_anti(Player Current_Player)
