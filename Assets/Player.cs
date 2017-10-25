@@ -12,8 +12,8 @@ public class Player {
     public float last_drop;
     public int netID;
 
-    public Player()
+    public Player(int NETID)
     {
-
+        netID = NETID;
     }
 }

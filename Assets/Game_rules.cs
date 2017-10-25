@@ -12,12 +12,14 @@ public class Game_rules
     //time interval between each down move of each piece ~ level difficulty
     public float DropSpeed = 0.5f;
 
-    public void Make_new_process(Player Current_Player)
+    public bool Make_new_process(Player Current_Player)
     {
         Current_Player.Active_Shapes.Add(Current_Player.Player_Next_Shape);
         Current_Player.Player_Current_Shape = Current_Player.Player_Next_Shape;
         Current_Player.Player_Next_Shape = new Shape();
+        return true;
     }
+
     public void Check_Lines(Player Current_Player)
     {
         if (check_out_spawn_area(Current_Player))

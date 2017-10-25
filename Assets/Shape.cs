@@ -1,11 +1,11 @@
 ﻿using UnityEngine;
 using System.Collections;
-
+public enum Shape_choice : int { L = 1, J, I, O, S, Z, T };
 public class Shape {
 
     public Block[] shape_parts = new Block[4];
 
-    public enum Shape_choice : int { L = 1, J, I, O, S, Z, T };   
+    
     public Shape_choice myshape;
     public Color mycolor;
 
@@ -14,6 +14,12 @@ public class Shape {
         myshape = (Shape_choice)Random.Range(1, (int)Shape_choice.T);
         shape_parts = Create_choice(myshape);
         mycolor = Shape_coloring(myshape);
+    }
+
+    public Shape(Shape_choice specific_shape)
+    {
+        shape_parts = Create_choice(specific_shape);
+        mycolor = Shape_coloring(specific_shape);
     }
 
     public Color Shape_coloring(Shape_choice color_shape)
