@@ -7,11 +7,11 @@ using UnityEngine.Networking;
 using UnityEngine.Networking.NetworkSystem;
 
 
-public enum Motion_keys : int { left, right, up, down, k, a, d, w, s, x };
+public enum Motion_keys : int { left, right, up, down, a, d, w, s};
 
 public static class Tetris_consts
 {
-    public const int keys_per_player = 5;
+    public const int keys_per_player = 4;
 }
 
 public class Main : MonoBehaviour {
@@ -89,6 +89,7 @@ public class Main : MonoBehaviour {
         NetSendData incoming_new_piece = netMsg.ReadMessage<NetSendData>();
         int incoming_client_id = incoming_new_piece.id;
         Shape_choice incoming_shape = (Shape_choice) incoming_new_piece.shape_next;
+
         Debug.Log(Server_Players[incoming_client_id].Player_Current_Shape.myshape.ToString());
         Server_Players[incoming_client_id].Player_Current_Shape = new Shape(incoming_shape);
         Debug.Log(Server_Players[incoming_client_id].Player_Current_Shape.myshape.ToString());
@@ -98,6 +99,7 @@ public class Main : MonoBehaviour {
     {
         NetSendData get_p_count = netMsg.ReadMessage<NetSendData>();
         Debug.Log("Server: Client claims to have: " + get_p_count.player_count.ToString());
+
         Server_Players.Add(Create_Player(get_p_count.id));
         Server_Players[get_p_count.id].Player_Current_Shape = new Shape((Shape_choice) get_p_count.shape_current);
         Server_Players[get_p_count.id].Player_Next_Shape = new Shape((Shape_choice)get_p_count.shape_next);
@@ -167,15 +169,17 @@ public class Main : MonoBehaviour {
         Debug.Log("Client: I created a player here. ID: " + get_my_id.id.ToString());
         NetSendData players_here = new NetSendData();
         players_here.player_count = Client_Players.Count;
+        //Debug.Log("Client 1st make C: " + Client_Players[0].Player_Current_Shape.myshape.ToString() + " N: " );
         players_here.shape_current = (int) Client_Players[0].Player_Current_Shape.myshape;
         players_here.shape_next = (int)Client_Players[0].Player_Next_Shape.myshape;
         myClient.Send(SendPlayers, players_here);
     }
 
-    void Start() {
+    private void Awake()
+    {
         if (Network_Game) //call network setup functions
         {
-            if (Set_As_Server) 
+            if (Set_As_Server)
             {
                 Setup_server();
                 localClient = ClientScene.ConnectLocalServer();
@@ -186,7 +190,9 @@ public class Main : MonoBehaviour {
                 Setup_Client();
             }
         }
-        else
+    }
+    void Start() {
+        if(!Network_Game)
         {
             Debug.Log("Local run");
             if (two_players)
@@ -205,6 +211,7 @@ public class Main : MonoBehaviour {
                 Tetris_Players.Add(Create_Player(0));
             }
         }
+
         if (Render_Switch)
         {
             GameObject canvas = GameObject.Find("Canvas");
@@ -228,7 +235,7 @@ public class Main : MonoBehaviour {
             if (Set_As_Server)
             {
                 Tetris_Players = Server_Players;
-                TXT_Setup();
+
             }
             if (Set_As_Remote)
             {
@@ -239,6 +246,7 @@ public class Main : MonoBehaviour {
                 Tetris_Players = Server_Players;
             }
         }
+        else { Set_As_Remote = false;  Set_As_Server = false; }
 
         if (Tetris_Players.Count > 0)
         {
@@ -284,9 +292,6 @@ public class Main : MonoBehaviour {
             }
         }
     }
-
-
-
     void Keypressing(Player Current_Player)
     {
         if (Input.GetKeyDown(Current_Player.mymotion[0].ToString()))
@@ -313,20 +318,12 @@ public class Main : MonoBehaviour {
                 Client_Key_Press(Current_Player, Current_Player.mymotion[2]);
             }
         }
-        if (Input.GetKeyDown(Current_Player.mymotion[3].ToString()))
-        {
-            Tetris_Rules.Rotate_anti(Current_Player);
-            if ((Set_As_Remote) && !(Set_As_Server)) //Send to Server Key presses. Server Tetris_Players List is the valid copy.
-            {
-                Client_Key_Press(Current_Player, Current_Player.mymotion[3]);
-            }
-        }
-        if(Input.GetKeyDown(Current_Player.mymotion[4].ToString()))
+        if(Input.GetKeyDown(Current_Player.mymotion[3].ToString()))
         {
             Tetris_Rules.Move_down(Current_Player);
             if ((Set_As_Remote) && !(Set_As_Server)) //Send to Server Key presses. Server Tetris_Players List is the valid copy.
             {
-                Client_Key_Press(Current_Player, Current_Player.mymotion[4]);
+                Client_Key_Press(Current_Player, Current_Player.mymotion[3]);
             }
         }
     }
@@ -381,15 +378,18 @@ public class Main : MonoBehaviour {
                 to_render[to_render.Count - 1].GetComponent<MeshRenderer>().material.color = Current_Player.Player_Next_Shape.mycolor;
             }
 
-                foreach (Shape shape_to_render in Current_Player.Active_Shapes)
-            { 
-                foreach (Block block_to_render in shape_to_render.shape_parts)
+            foreach (Shape shape_to_render in Current_Player.Active_Shapes)
+            {
+                if (shape_to_render.shape_parts[0].position.y < -4)
                 {
-                    float temp_x = block_to_render.position.x + next_player_render_shift;
-                    float temp_y = block_to_render.position.y + player_render_shift_y;
-                    to_render.Add(Instantiate(block3D));
-                    to_render[to_render.Count - 1].transform.position = new Vector3(temp_x, temp_y, 0);
-                    to_render[to_render.Count - 1].GetComponent<MeshRenderer>().material.color = shape_to_render.mycolor;
+                    foreach (Block block_to_render in shape_to_render.shape_parts)
+                    {
+                        float temp_x = block_to_render.position.x + next_player_render_shift;
+                        float temp_y = block_to_render.position.y + player_render_shift_y;
+                        to_render.Add(Instantiate(block3D));
+                        to_render[to_render.Count - 1].transform.position = new Vector3(temp_x, temp_y, 0);
+                        to_render[to_render.Count - 1].GetComponent<MeshRenderer>().material.color = shape_to_render.mycolor;
+                    }
                 }
             }
         }     
@@ -442,7 +442,7 @@ public class Main : MonoBehaviour {
 
     public void TXT_Setup()
     {
-        foreach (Player Current_Player in Tetris_Players)
+        for (int twoplayers=0; twoplayers < 2; twoplayers++)
         {
             int shift_text_boxes = player_text_shift_x - (text_box.Count - 1) * next_player_text_shift_x;
             GameObject canvas = GameObject.Find("Canvas");

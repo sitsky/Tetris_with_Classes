@@ -5,7 +5,7 @@ public class Game_rules
 {
     public int Left_boundary = -5;
     public int Right_boundary = 6;
-    public int Bottom_boundary = 20;
+    public int Bottom_boundary = 40;
     public int total_columns = 11;
     public int longest_shape = 4;
     public Vector3 block_dismiss_vector = new Vector3(5, 8);
@@ -17,6 +17,10 @@ public class Game_rules
         Current_Player.Active_Shapes.Add(Current_Player.Player_Next_Shape);
         Current_Player.Player_Current_Shape = Current_Player.Player_Next_Shape;
         Current_Player.Player_Next_Shape = new Shape();
+        for(int force_down=0; force_down<4; force_down++)
+        {
+            Current_Player.Player_Current_Shape.Shape_move_down();
+        }
         return true;
     }
 
@@ -129,6 +133,7 @@ public class Game_rules
         }
         return false;       
     }
+
     public void Move_left(Player Current_Player)
     {
         if (check_out_spawn_area(Current_Player))
@@ -164,7 +169,6 @@ public class Game_rules
             Current_Player.Player_Current_Shape = Current_Shape;
         }
     }
-
     public void Move_down(Player Current_Player)
     {
         if (check_out_spawn_area(Current_Player))
@@ -188,6 +192,7 @@ public class Game_rules
         if (check_out_spawn_area(Current_Player))
         {
             Shape Current_Shape = Current_Player.Player_Current_Shape;
+            Debug.Log(Current_Shape.myorientation.ToString());
             Current_Shape.Shape_rotate_anticlockwise();
             if (Check_For_NO_Room(Current_Player))
             {
@@ -198,6 +203,7 @@ public class Game_rules
                 Current_Shape.Shape_rotate_clockwise();
             }
             Current_Player.Player_Current_Shape = Current_Shape;
+            Debug.Log(Current_Shape.myorientation.ToString());
         }
     }
     public void Rotate_anti(Player Current_Player)

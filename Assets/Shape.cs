@@ -1,16 +1,21 @@
 ﻿using UnityEngine;
 using System.Collections;
+
 public enum Shape_choice : int { L = 1, J, I, O, S, Z, T };
+
 public class Shape {
 
     public Block[] shape_parts = new Block[4];
 
-    
     public Shape_choice myshape;
     public Color mycolor;
 
+    public enum Shape_Orientation : int { ZERO = 0, NINTY = 1, ONEEIGHTY = 2, TWOSEVENTY = 3 };
+    public Shape_Orientation myorientation;
+
     public Shape()
     {
+        myorientation = Shape_Orientation.ZERO;
         myshape = (Shape_choice)Random.Range(1, (int)Shape_choice.T);
         shape_parts = Create_choice(myshape);
         mycolor = Shape_coloring(myshape);
@@ -114,6 +119,8 @@ public class Shape {
         if (myshape == Shape_choice.O) return; 
         else
         {
+            myorientation++;
+            if (myorientation > Shape_Orientation.TWOSEVENTY) myorientation = Shape_Orientation.ZERO;
             Vector2 pivot = shape_parts[0].position;
             for (int part_of_shape = 1; part_of_shape < shape_parts.Length; part_of_shape++)
             {
@@ -125,6 +132,22 @@ public class Shape {
 
             }
         }
+        if (myorientation == Shape_Orientation.TWOSEVENTY)
+        {
+            for (int part_of_shape = 0; part_of_shape < 4; part_of_shape++)
+            {
+                shape_parts[part_of_shape].position += Vector2.left;
+                
+            }
+        }
+        if (myorientation == Shape_Orientation.ZERO)
+        {
+            for (int part_of_shape = 0; part_of_shape < 4; part_of_shape++)
+            {
+                shape_parts[part_of_shape].position += Vector2.right;
+                
+            }
+        }
     }
 
     public void Shape_rotate_clockwise()
@@ -132,6 +155,8 @@ public class Shape {
         if (myshape == Shape_choice.O) return;
         else
         {
+            myorientation--;
+            if (myorientation < Shape_Orientation.ZERO) myorientation = Shape_Orientation.ZERO;
             Vector2 pivot = shape_parts[0].position;
             for (int part_of_shape = 1; part_of_shape < shape_parts.Length; part_of_shape++)
             {
@@ -140,11 +165,27 @@ public class Shape {
                 rotated.x = -direction_of_part.y;
                 rotated.y = direction_of_part.x;
                 shape_parts[part_of_shape].position = rotated + pivot;
-            }           
+            }
+        }
+        if (myorientation == Shape_Orientation.TWOSEVENTY)
+        {
+            for (int part_of_shape = 0; part_of_shape < 4; part_of_shape++)
+            {
+                shape_parts[part_of_shape].position += Vector2.right;
+                
+            }
+        }
+        if (myorientation == Shape_Orientation.ZERO)
+        {
+            for (int part_of_shape = 0; part_of_shape < 4; part_of_shape++)
+            {
+                shape_parts[part_of_shape].position += Vector2.left;
+               
+            }
         }
     }
 
-    public void Shape_move_left()
+public void Shape_move_left()
     {
         for (int part_of_shape = 0; part_of_shape < shape_parts.Length; part_of_shape++)
         {
