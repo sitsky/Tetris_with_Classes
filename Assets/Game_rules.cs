@@ -5,7 +5,7 @@ using System.Linq;
 public class Game_rules
 {
     public int Left_boundary = -5;
-    public int Right_boundary = 6;
+    public int Right_boundary = 5;
     public int Bottom_boundary = 40;
     public int total_columns = 11;
     public int longest_shape = 4;
@@ -82,7 +82,7 @@ public class Game_rules
                         }
                     }
                 }
-                if(fullrow < total_columns+1)
+                if(fullrow < total_columns)
                 {
                     fullrow = 0;
                     foreach (Shape active_shape in Current_Player.Active_Shapes)
@@ -134,8 +134,6 @@ public class Game_rules
         }
         return false;       
     }
-
-
     public void Move_left(Player Current_Player)
     {
         if (check_out_spawn_area(Current_Player))
@@ -200,28 +198,47 @@ public class Game_rules
             }
             else if (Check_For_Boundaries(Current_Player))
             {
-                //fix_rotation(Current_Player);
+                fix_rotation(Current_Player);
             }
             Current_Player.Player_Current_Shape = Current_Shape;
         }
     }
-    public void Rotate_anti(Player Current_Player)
+
+    public void fix_rotation(Player Current_Player)
     {
-        if (check_out_spawn_area(Current_Player))
+        Shape CP = Current_Player.Player_Current_Shape;
+        int max = 0;
+        int min = 0;
+        foreach (Block tb in CP.shape_parts)
         {
-            Shape Current_Shape = Current_Player.Player_Current_Shape;
-            Current_Shape.Shape_rotate_anticlockwise();
-            if (Check_For_NO_Room(Current_Player))
+            if (tb.position.x > max)
+                max =(int) tb.position.x;
+            if (tb.position.x < min)
+                min = (int)tb.position.x;
+
+        }
+        if(max > Right_boundary)
+        {
+            int times = max - Right_boundary;
+            Debug.Log(times);
+            for (int i=0; i< times; i++)
             {
-                Current_Shape.Shape_rotate_clockwise();
+                Debug.Log("<");
+                CP.Shape_move_left();
             }
-            if (Check_For_Boundaries(Current_Player))
+            
+        }
+        if(min < Left_boundary)
+        {
+            int times = Left_boundary - min;
+            Debug.Log(times);
+            for (int i = 0; i < times; i++)
             {
-                Current_Shape.Shape_rotate_clockwise();
+                CP.Shape_move_right();
             }
-            Current_Player.Player_Current_Shape = Current_Shape;
         }
     }
+
 
     public bool check_out_spawn_area(Player Current_Player)
     {
@@ -232,18 +249,21 @@ public class Game_rules
         }
         return true;
     }
-
-    public Shape make_whole(Shape Current_Shape)
-    {
-        foreach (Block Current_Block in Current_Shape.shape_parts)
-        {
-            Current_Block.position = round_the_Vec(Current_Block.position);
-        }
-        return Current_Shape;
-    }
-    public Vector2 round_the_Vec(Vector2 current_vector)
-    { 
-        return new Vector2(Mathf.Round(current_vector.x),
-                           Mathf.Round(current_vector.y));
-    }
 }
+/* public void Rotate_anti(Player Current_Player)
+   {
+       if (check_out_spawn_area(Current_Player))
+       {
+           Shape Current_Shape = Current_Player.Player_Current_Shape;
+           Current_Shape.Shape_rotate_anticlockwise();
+           if (Check_For_NO_Room(Current_Player))
+           {
+               Current_Shape.Shape_rotate_clockwise();
+           }
+           if (Check_For_Boundaries(Current_Player))
+           {
+               Current_Shape.Shape_rotate_clockwise();
+           }
+           Current_Player.Player_Current_Shape = Current_Shape;
+       }
+   }*/

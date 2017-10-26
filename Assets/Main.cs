@@ -101,11 +101,10 @@ Code looks shit on Main.
                     Tetris_Rules.Move_down(Current_Player);
                     if (Tetris_Rules.Check_For_NO_Room(Current_Player))
                     {
-                        bool new_piece = false;
+                        bool new_piece;
                         Current_Player.Player_Current_Shape.Shape_move_up();                       
                         Tetris_Rules.Check_Lines(Current_Player);
                         new_piece = Tetris_Rules.Make_new_process(Current_Player);
-                        new_piece = false;
                     }
                 }
             }
@@ -213,7 +212,6 @@ Code looks shit on Main.
 
             for (int part_of_preview = 0; part_of_preview < Current_Player.Player_Blocks_in_Shape; part_of_preview++)
             {
-                Debug.Log("pp: " + part_of_preview.ToString());
                 int col = (int)Current_Player.Player_Next_Shape.shape_parts[part_of_preview].position.x + x_shift_for_TXT; //rendering +1 move
                 int row = (int)Current_Player.Player_Next_Shape.shape_parts[part_of_preview].position.y + y_shift_for_TXT; //rendering +29 move
                 the_game_view[col, row] = 1;

@@ -19,7 +19,7 @@ public class Shape {
     {
         myorientation = Shape_Orientation.ZERO;
         myshape = (Shape_choice)Random.Range(1, (int)Shape_choice.T);
-        //myshape = (Shape_choice)1;
+        //myshape = (Shape_choice) 3;
         shape_parts = Create_choice(myshape);
         mycolor = Shape_coloring(myshape);
     }
@@ -82,7 +82,7 @@ public class Shape {
 
     public void Shape_rotate_clockwise()
     {
-        Debug.Log(myshape);
+
         if (myshape == Shape_choice.O)
         {
             return;
@@ -134,7 +134,6 @@ public class Shape {
         }
         else if (myshape == Shape_choice.I)
         {
-            Debug.Log("ro");
             myorientation++;
             if (myorientation > Shape_Orientation.TWOSEVENTY) myorientation = Shape_Orientation.ZERO;
 
@@ -200,8 +199,9 @@ public class Shape {
             }
         }
     }
-    public void Shape_rotate_anticlockwise() { }
-    /*{
+    
+    public void Shape_rotate_anticlockwise()
+    {
         Debug.Log(myshape);
         if (myshape == Shape_choice.O)
         {
@@ -300,6 +300,14 @@ public class Shape {
                 for (int part_of_shape = 0; part_of_shape < shape_parts.Count; part_of_shape++)
                 {
                     shape_parts[part_of_shape].position += Vector2.right;
+                    shape_parts[part_of_shape].position += Vector2.right;
+                }
+            }
+            if (myorientation == Shape_Orientation.TWOSEVENTY)
+            {
+                for (int part_of_shape = 0; part_of_shape < shape_parts.Count; part_of_shape++)
+                {
+                    shape_parts[part_of_shape].position += Vector2.left;
                 }
             }
             Vector2 pivot = shape_parts[0].position;
@@ -314,7 +322,7 @@ public class Shape {
         }
     }
 
-    */
+    
 
     public void Shape_move_left()
     {
@@ -323,7 +331,6 @@ public class Shape {
             shape_parts[part_of_shape].position = shape_parts[part_of_shape].position + Vector2.left;
         }
     }
-
     public void Shape_move_right()
     {
         for (int part_of_shape = 0; part_of_shape < shape_parts.Count; part_of_shape++)
@@ -331,7 +338,6 @@ public class Shape {
             shape_parts[part_of_shape].position = shape_parts[part_of_shape].position + Vector2.right;
         }
     }
-
     public void Shape_move_down()
     {
         
@@ -342,7 +348,6 @@ public class Shape {
             shape_parts[part_of_shape].position = shape_parts[part_of_shape].position + Vector2.down;
         }
     }
-
     public void Shape_move_up()
     {
         for (int part_of_shape = 0; part_of_shape < shape_parts.Count; part_of_shape++)
@@ -350,14 +355,12 @@ public class Shape {
             shape_parts[part_of_shape].position = shape_parts[part_of_shape].position + Vector2.up;
         }
     }
-
     public Shape(Shape_choice specific_shape)
     {
         myorientation = Shape_Orientation.ZERO;
         shape_parts = Create_choice(specific_shape);
         mycolor = Shape_coloring(specific_shape);
     }
-
     public Color Shape_coloring(Shape_choice color_shape)
     {
         Color color_chosen;
@@ -390,7 +393,6 @@ public class Shape {
         }
         return color_chosen;
     }
-
     public void Block_Destroy()
     {
         for (int index = 0; index < shape_parts.Count; index++)
@@ -402,6 +404,5 @@ public class Shape {
             }
         }
     }
-
 }
 
