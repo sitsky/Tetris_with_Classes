@@ -256,16 +256,15 @@ Code looks shit on Main.
             {
                 GetPlayersKeys(Current_Player);
                 Keypressing(Current_Player); //apply appropriate KeysReceived to the client in Tetris_Players
-
                 if (Time.time - Current_Player.last_drop > Tetris_Rules.DropSpeed)
                 {
                     Current_Player.last_drop = Time.time;
                     Current_Player.Player_Current_Shape.Shape_move_down();
+                    Tetris_Rules.Move_down(Current_Player);
                     if (Tetris_Rules.Check_For_NO_Room(Current_Player))
                     {
                         bool new_piece = false;
-                        Current_Player.Player_Current_Shape.Shape_move_up();
-                        //Tetris_Rules.place_blocks(Current_Player);
+                        Current_Player.Player_Current_Shape.Shape_move_up();                       
                         Tetris_Rules.Check_Lines(Current_Player);
                         new_piece = Tetris_Rules.Make_new_process(Current_Player);
                         if (Set_As_Remote)
@@ -311,14 +310,14 @@ Code looks shit on Main.
             }
         }
         if (Input.GetKeyDown(Current_Player.mymotion[2].ToString()))
-        {
+        { 
             Tetris_Rules.Rotate_clock(Current_Player);
             if ((Set_As_Remote) && !(Set_As_Server)) //Send to Server Key presses. Server Tetris_Players List is the valid copy.
             {
                 Client_Key_Press(Current_Player, Current_Player.mymotion[2]);
             }
         }
-        if(Input.GetKeyDown(Current_Player.mymotion[3].ToString()))
+        if(Input.GetKey(Current_Player.mymotion[3].ToString()))
         {
             Tetris_Rules.Move_down(Current_Player);
             if ((Set_As_Remote) && !(Set_As_Server)) //Send to Server Key presses. Server Tetris_Players List is the valid copy.
@@ -349,19 +348,18 @@ Code looks shit on Main.
             Assign_Keys.mymotion[keys] = last_given + keys;
         }
     }
+
     public Player Create_Player(int ID) //TODO: Move some TXT setup to TXT_Display()
     {
         Player new_player = new Player(ID);
         new_player.last_drop = 0;
         new_player.Player_Current_Shape = new Shape();
-        new_player.Player_Blocks_in_Shape = new_player.Player_Current_Shape.shape_parts.Length;
         new_player.Active_Shapes.Add(new_player.Player_Current_Shape);
+        new_player.Player_Blocks_in_Shape = new_player.Player_Current_Shape.shape_parts.Count;
         new_player.Player_Next_Shape = new Shape();
         Give_Player_Keys(new_player, 0);
         return new_player;
     }
-
-
 
     public void Render_Player_Blocks() //TODO:spawn area
     {
@@ -405,24 +403,32 @@ Code looks shit on Main.
         foreach (Player Current_Player in Tetris_Players)
         {
             string to_text_box = "";
-            int[,] the_game_view = new int[13, 30];
+            int[,] the_game_view = new int[13, 50];
 
             for (int part_of_preview = 0; part_of_preview < Current_Player.Player_Blocks_in_Shape; part_of_preview++)
             {
+                Debug.Log("pp: " + part_of_preview.ToString());
                 int col = (int)Current_Player.Player_Next_Shape.shape_parts[part_of_preview].position.x + x_shift_for_TXT; //rendering +1 move
                 int row = (int)Current_Player.Player_Next_Shape.shape_parts[part_of_preview].position.y + y_shift_for_TXT; //rendering +29 move
                 the_game_view[col, row] = 1;
             }
 
             foreach (Shape shape_in_game in Current_Player.Active_Shapes)
-            {
-                for (int part_of_shape = 0; part_of_shape < Current_Player.Player_Blocks_in_Shape; part_of_shape++)
+                foreach(Block part_of_shape in shape_in_game.shape_parts)
                 {
+                    int column = (int)part_of_shape.position.x - Tetris_Rules.Left_boundary;
+                    int row = (int)part_of_shape.position.y + Tetris_Rules.Bottom_boundary + 1;
+                    the_game_view[column, row] = 1;
+                }
+
+                /*for (int part_of_shape = 0; part_of_shape < Current_Player.Player_Blocks_in_Shape; part_of_shape++)
+                {
+                    Debug.Log("ps: " + part_of_shape.ToString());
                     int column = (int)shape_in_game.shape_parts[part_of_shape].position.x - Tetris_Rules.Left_boundary;
                     int row = (int)shape_in_game.shape_parts[part_of_shape].position.y + Tetris_Rules.Bottom_boundary + 1;
                     the_game_view[column, row] = 1;
-                }
-            }
+                }*/
+            
             for (int line = 29; line >= 0; line--)
             {
                 to_text_box = to_text_box + "|";
