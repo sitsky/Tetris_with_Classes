@@ -19,7 +19,7 @@ public class Shape {
     {
         myorientation = Shape_Orientation.ZERO;
         myshape = (Shape_choice)Random.Range(1, (int)Shape_choice.T);
-        //myshape = (Shape_choice)7;
+        //myshape = (Shape_choice)1;
         shape_parts = Create_choice(myshape);
         mycolor = Shape_coloring(myshape);
     }
@@ -183,10 +183,18 @@ public class Shape {
                     shape_parts[part_of_shape].position += Vector2.right;
                 }
             }
+            if (myorientation == Shape_Orientation.TWOSEVENTY)
+            {
+                for (int part_of_shape = 0; part_of_shape < shape_parts.Count; part_of_shape++)
+                {
+                    shape_parts[part_of_shape].position += Vector2.right;
+                }
+            }
             if (myorientation == Shape_Orientation.ZERO)
             {
                 for (int part_of_shape = 0; part_of_shape < shape_parts.Count; part_of_shape++)
                 {
+                    shape_parts[part_of_shape].position += Vector2.left;
                     shape_parts[part_of_shape].position += Vector2.left;
                 }
             }

@@ -136,7 +136,6 @@ public class Game_rules
     }
 
 
-
     public void Move_left(Player Current_Player)
     {
         if (check_out_spawn_area(Current_Player))
@@ -201,8 +200,7 @@ public class Game_rules
             }
             else if (Check_For_Boundaries(Current_Player))
             {
-
-                Current_Player.Player_Current_Shape.Shape_rotate_anticlockwise();
+                //fix_rotation(Current_Player);
             }
             Current_Player.Player_Current_Shape = Current_Shape;
         }
