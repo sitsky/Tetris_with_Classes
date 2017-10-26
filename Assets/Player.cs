@@ -13,7 +13,7 @@ public class Player {
     public int netID;
 
     public Player(int NETID)
-    {
+    { 
         netID = NETID;
     }
 }
