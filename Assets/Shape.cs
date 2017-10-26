@@ -185,7 +185,7 @@ public class Shape {
         }
     }
 
-public void Shape_move_left()
+    public void Shape_move_left()
     {
         for (int part_of_shape = 0; part_of_shape < shape_parts.Length; part_of_shape++)
         {
