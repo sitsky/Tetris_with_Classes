@@ -13,7 +13,7 @@ public class Game_rules
     //time interval between each down move of each piece ~ level difficulty
     public float DropSpeed = 0.5f;
 
-    public bool Make_new_process(Player Current_Player)
+    public void SpawnNewShape(Player Current_Player)
     {
         Current_Player.Active_Shapes.Add(Current_Player.Player_Next_Shape);
         Current_Player.Player_Current_Shape = Current_Player.Player_Next_Shape;
@@ -22,7 +22,6 @@ public class Game_rules
         {
             Current_Player.Player_Current_Shape.shape_parts[force_down].position.y -= 4;
         }
-        return true;
     }
 
 
@@ -62,7 +61,6 @@ public class Game_rules
         }
         return false;
     }
-
     public void Check_Lines(Player Current_Player)
     {
        if (check_out_spawn_area(Current_Player))
@@ -186,6 +184,7 @@ public class Game_rules
             Current_Player.Player_Current_Shape = Current_Shape;
         }
     }
+
     public void Rotate_clock(Player Current_Player)
     {
         if (check_out_spawn_area(Current_Player))

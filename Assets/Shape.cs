@@ -18,8 +18,8 @@ public class Shape {
     public Shape()
     {
         myorientation = Shape_Orientation.ZERO;
-        myshape = (Shape_choice)Random.Range(1, (int)Shape_choice.T);
-        //myshape = (Shape_choice) 3;
+        myshape = (Shape_choice)Random.Range(1, 8);
+        //myshape = (Shape_choice) 2;
         shape_parts = Create_choice(myshape);
         mycolor = Shape_coloring(myshape);
     }
@@ -31,22 +31,22 @@ public class Shape {
         switch (make_shape)
         {
             case Shape_choice.L:
+                block_chosen.Add(new Block(0, -2));
                 block_chosen.Add(new Block(0, -3));
                 block_chosen.Add(new Block(0, -1));
-                block_chosen.Add(new Block(0, -2));
                 block_chosen.Add(new Block(1, -3));
+
                 break;
             case Shape_choice.J:
+                block_chosen.Add(new Block(0, -2));
                 block_chosen.Add(new Block(-1, -3));
                 block_chosen.Add(new Block(0, -3));
                 block_chosen.Add(new Block(0, -1));
-                block_chosen.Add(new Block(0, -2));
-                                break;
+                break;
             case Shape_choice.I:
                 block_chosen.Add(new Block(0, -3));
                 block_chosen.Add(new Block(0, -2));
                 block_chosen.Add(new Block(0, -1));
-                                           
                 block_chosen.Add(new Block(0, -4));
                 break;
             case Shape_choice.O:
@@ -63,13 +63,13 @@ public class Shape {
                 break;
             case Shape_choice.T:
                 block_chosen.Add(new Block(0, -1));
+                block_chosen.Add(new Block(0, -2));
                 block_chosen.Add(new Block(-1, -1));
                 block_chosen.Add(new Block(1, -1));
-                block_chosen.Add(new Block(0, -2));
                 break;
             case Shape_choice.Z:
-                block_chosen.Add(new Block(0, -1));
                 block_chosen.Add(new Block(0, -2));
+                block_chosen.Add(new Block(0, -1));
                 block_chosen.Add(new Block(-1, -1));
                 block_chosen.Add(new Block(1, -2));
                 break;
@@ -78,7 +78,7 @@ public class Shape {
         }
         return block_chosen;
     }
-
+    /*
 
     public void Shape_rotate_clockwise()
     {
@@ -321,8 +321,155 @@ public class Shape {
             }
         }
     }
+    */
+    public void Shape_rotate_clockwise()
+    {
+        if (myshape == Shape_choice.O) return;
+        else
+        {
+            myorientation++;
+            if (myorientation > Shape_Orientation.TWOSEVENTY) myorientation = Shape_Orientation.ZERO;
+            Vector2 pivot = shape_parts[0].position;
+            for (int part_of_shape = 1; part_of_shape < shape_parts.Count; part_of_shape++)
+            {
+                Vector2 direction_of_block = pivot - shape_parts[part_of_shape].position;
+                Vector2 rotated;
+                rotated.x = -direction_of_block.y;
+                rotated.y = direction_of_block.x;
+                shape_parts[part_of_shape].position = rotated + pivot;
+            }
+        }
+        if (myshape == Shape_choice.J)
+        {
+            if (myorientation == Shape_Orientation.ONEEIGHTY)
+            {
+                for (int part_of_shape = 0; part_of_shape < 4; part_of_shape++)
+                {
+                    shape_parts[part_of_shape].position += Vector2.left;
 
-    
+                }
+            }
+            if (myorientation == Shape_Orientation.TWOSEVENTY)
+            {
+                for (int part_of_shape = 0; part_of_shape < 4; part_of_shape++)
+                {
+                    shape_parts[part_of_shape].position += Vector2.right;
+                }
+            }
+        }
+        if (myshape == Shape_choice.I)
+        {
+            if (myorientation == Shape_Orientation.NINTY)
+            {
+                for (int part_of_shape = 0; part_of_shape < 4; part_of_shape++)
+                {
+                    shape_parts[part_of_shape].position += Vector2.left;
+
+                }
+            }
+            if (myorientation == Shape_Orientation.ONEEIGHTY)
+            {
+                for (int part_of_shape = 0; part_of_shape < 4; part_of_shape++)
+                {
+                    shape_parts[part_of_shape].position += Vector2.right;
+                }
+            }
+        }
+        if ((myshape == Shape_choice.S) || (myshape == Shape_choice.T))
+        {
+            if (myorientation == Shape_Orientation.TWOSEVENTY)
+            {
+                for (int part_of_shape = 0; part_of_shape < 4; part_of_shape++)
+                {
+                    shape_parts[part_of_shape].position += Vector2.left;
+
+                }
+            }
+            if (myorientation == Shape_Orientation.ZERO)
+            {
+                for (int part_of_shape = 0; part_of_shape < 4; part_of_shape++)
+                {
+                    shape_parts[part_of_shape].position += Vector2.right;
+                }
+            }
+        }
+        if (myshape == Shape_choice.Z) 
+        {
+            if (myorientation == Shape_Orientation.TWOSEVENTY)
+            {
+                for (int part_of_shape = 0; part_of_shape < 4; part_of_shape++)
+                {
+                    shape_parts[part_of_shape].position += Vector2.right;
+
+                }
+            }
+            if (myorientation == Shape_Orientation.ZERO)
+            {
+                for (int part_of_shape = 0; part_of_shape < 4; part_of_shape++)
+                {
+                    shape_parts[part_of_shape].position += Vector2.left;
+                }
+            }
+        }
+        if (myshape == Shape_choice.L)
+        {
+            if (myorientation == Shape_Orientation.ONEEIGHTY)
+            {
+                for (int part_of_shape = 0; part_of_shape < 4; part_of_shape++)
+                {
+                    shape_parts[part_of_shape].position += Vector2.right;
+
+                }
+            }
+            if (myorientation == Shape_Orientation.TWOSEVENTY)
+            {
+                for (int part_of_shape = 0; part_of_shape < 4; part_of_shape++)
+                {
+                    shape_parts[part_of_shape].position += Vector2.left;
+                }
+            }
+        }
+
+        
+    }
+    public void Shape_rotate_anticlockwise()
+    {
+        if (myshape == Shape_choice.O) return;
+        else
+        {
+            myorientation--;
+            if (myorientation < Shape_Orientation.ZERO) myorientation = Shape_Orientation.ZERO;
+
+            if (myshape == Shape_choice.I)
+            {
+                if (myorientation == Shape_Orientation.NINTY)
+                {
+                    for (int part_of_shape = 0; part_of_shape < 4; part_of_shape++)
+                    {
+                        shape_parts[part_of_shape].position += Vector2.right;
+                    }
+                }
+                if (myorientation == Shape_Orientation.ONEEIGHTY)
+                {
+                    for (int part_of_shape = 0; part_of_shape < 4; part_of_shape++)
+                    {
+                        shape_parts[part_of_shape].position += Vector2.left;
+                    }
+                }
+            }
+            Vector2 pivot = shape_parts[0].position;
+            for (int part_of_shape = 1; part_of_shape < shape_parts.Count; part_of_shape++)
+            {
+                Vector2 direction_of_block = pivot - shape_parts[part_of_shape].position;
+                Vector2 rotated;
+                rotated.x = -direction_of_block.y;
+                rotated.y = direction_of_block.x;
+                shape_parts[part_of_shape].position = rotated + pivot;
+            }
+        }
+    }
+
+
 
     public void Shape_move_left()
     {
@@ -338,6 +485,8 @@ public class Shape {
             shape_parts[part_of_shape].position = shape_parts[part_of_shape].position + Vector2.right;
         }
     }
+
+
     public void Shape_move_down()
     {
         
@@ -355,6 +504,8 @@ public class Shape {
             shape_parts[part_of_shape].position = shape_parts[part_of_shape].position + Vector2.up;
         }
     }
+
+
     public Shape(Shape_choice specific_shape)
     {
         myorientation = Shape_Orientation.ZERO;

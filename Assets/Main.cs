@@ -54,7 +54,7 @@ public class Main : MonoBehaviour {
             Tetris_Players.Add(Create_Player(0));
             foreach (Player Current_Player in Tetris_Players)
             {
-                Give_Player_Keys(Current_Player, last_given);
+                SetupPlayerControls(Current_Player, last_given);
                 last_given += Tetris_consts.keys_per_player;
                 if (last_given > (Motion_keys)(Tetris_Players.Count * Tetris_consts.keys_per_player)) last_given = Motion_keys.left;
             }
@@ -64,20 +64,11 @@ public class Main : MonoBehaviour {
             Tetris_Players.Add(Create_Player(0));
         }
  
-        if (Render_Switch)
-        {
-            GameObject canvas = GameObject.Find("Canvas");
-            Destroy(canvas);
-            areas_to_render[0] = (Instantiate(PlayArea3D));
-            areas_to_render[1] = (Instantiate(PlayArea3D));
-            areas_to_render[1].transform.position = areas_to_render[0].transform.position + new Vector3(next_player_render_separation, 0, 0);
-            Render_Player_Blocks();
-        }
-        else
-        {
-            TXT_Setup();
-            TXT_Display();
-        }
+        GameObject canvas = GameObject.Find("Canvas");
+        Destroy(canvas);
+        areas_to_render[0] = (Instantiate(PlayArea3D));
+        areas_to_render[1] = (Instantiate(PlayArea3D));
+        areas_to_render[1].transform.position = areas_to_render[0].transform.position + new Vector3(next_player_render_separation, 0, 0);
     }
 /*
 Client first piece slow.
@@ -92,8 +83,9 @@ Code looks shit on Main.
 
             foreach (Player Current_Player in Tetris_Players)
             {
-                GetPlayersKeys(Current_Player);
-                Keypressing(Current_Player); //apply appropriate KeysReceived to the client in Tetris_Players
+                Shape Current_Shape = Current_Player.Player_Current_Shape;
+                RetrievePlayerControls(Current_Player);
+                PlayerControls(Current_Player);
                 if (Time.time - Current_Player.last_drop > Tetris_Rules.DropSpeed)
                 {
                     Current_Player.last_drop = Time.time;
@@ -101,10 +93,9 @@ Code looks shit on Main.
                     Tetris_Rules.Move_down(Current_Player);
                     if (Tetris_Rules.Check_For_NO_Room(Current_Player))
                     {
-                        bool new_piece;
                         Current_Player.Player_Current_Shape.Shape_move_up();                       
                         Tetris_Rules.Check_Lines(Current_Player);
-                        new_piece = Tetris_Rules.Make_new_process(Current_Player);
+                        Tetris_Rules.SpawnNewShape(Current_Player);
                     }
                 }
             }
@@ -120,8 +111,8 @@ Code looks shit on Main.
     }
 
 
-    void Keypressing(Player Current_Player)
-    {
+    void PlayerControls(Player Current_Player)
+    { 
         if (Input.GetKeyDown(Current_Player.mymotion[0].ToString()))
         {
             Tetris_Rules.Move_left(Current_Player);
@@ -140,18 +131,18 @@ Code looks shit on Main.
         }
     }
 
-    public void GetPlayersKeys(Player Current_Player)
+    public void RetrievePlayerControls(Player Current_Player)
     {
         for (int keys = 0; keys < Tetris_consts.keys_per_player; keys++)
         {
             Current_keys[keys] =  Current_Player.mymotion[keys];
         }
     }
-    public void Give_Player_Keys(Player Assign_Keys, Motion_keys last_given)
+    public void SetupPlayerControls(Player Current_Player, Motion_keys last_given)
     {
         for (int keys = 0; keys < Tetris_consts.keys_per_player; keys++)
         {
-            Assign_Keys.mymotion[keys] = last_given + keys;
+            Current_Player.mymotion[keys] = last_given + keys;
         }
     }
     public Player Create_Player(int ID) //TODO: Move some TXT setup to TXT_Display()
@@ -162,7 +153,7 @@ Code looks shit on Main.
         new_player.Active_Shapes.Add(new_player.Player_Current_Shape);
         new_player.Player_Blocks_in_Shape = new_player.Player_Current_Shape.shape_parts.Count;
         new_player.Player_Next_Shape = new Shape();
-        Give_Player_Keys(new_player, 0);
+        SetupPlayerControls(new_player, 0);
         return new_player;
     }
 
