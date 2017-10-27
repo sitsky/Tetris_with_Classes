@@ -24,8 +24,6 @@ public class Game_rules
         }
     }
 
-
-  
     public bool Check_For_NO_Room(Player Current_Player)
     {
         if (check_out_spawn_area(Current_Player))
@@ -117,8 +115,6 @@ public class Game_rules
             }
         }
     }
-
-
 
     public bool Check_For_Boundaries(Player Current_Player)
     {
@@ -237,7 +233,6 @@ public class Game_rules
             }
         }
     }
-
 
     public bool check_out_spawn_area(Player Current_Player)
     {

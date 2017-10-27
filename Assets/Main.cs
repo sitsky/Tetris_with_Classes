@@ -178,17 +178,31 @@ Code looks shit on Main.
 
             foreach (Shape shape_to_render in Current_Player.Active_Shapes)
             {
-                //if (shape_to_render.shape_parts[0].position.y < -4)
-                //{
-                    foreach (Block block_to_render in shape_to_render.shape_parts)
+                foreach (Block block_to_render in shape_to_render.shape_parts)
+                {
+                    float temp_x = block_to_render.position.x + next_player_render_shift;
+                    float temp_y = block_to_render.position.y + player_render_shift_y;
+                    to_render.Add(Instantiate(block3D));
+                    to_render[to_render.Count - 1].transform.position = new Vector3(temp_x, temp_y, 0);
+                    to_render[to_render.Count - 1].GetComponent<MeshRenderer>().material.color = shape_to_render.mycolor;
+                }
+
+                /*Make landed pieces one color
+                if(Current_Player.Active_Shapes.Count >2 )
+                {
+                    if(Current_Player.Active_Shapes.IndexOf(shape_to_render)< Current_Player.Active_Shapes.Count - 1)
                     {
-                        float temp_x = block_to_render.position.x + next_player_render_shift;
-                        float temp_y = block_to_render.position.y + player_render_shift_y;
-                        to_render.Add(Instantiate(block3D));
-                        to_render[to_render.Count - 1].transform.position = new Vector3(temp_x, temp_y, 0);
-                        to_render[to_render.Count - 1].GetComponent<MeshRenderer>().material.color = shape_to_render.mycolor;
+                        foreach (Block block_to_render in shape_to_render.shape_parts)
+                        {
+                            float temp_x = block_to_render.position.x + next_player_render_shift;
+                            float temp_y = block_to_render.position.y + player_render_shift_y;
+                            to_render.Add(Instantiate(block3D));
+                            to_render[to_render.Count - 1].transform.position = new Vector3(temp_x, temp_y, 0);
+                            to_render[to_render.Count - 1].GetComponent<MeshRenderer>().material.color = Color.gray;
+                        }
                     }
-                //}
+
+                }*/
             }
         }
     }
