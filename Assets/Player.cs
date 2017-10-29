@@ -23,7 +23,9 @@ public class Player
         public BitArray line = new BitArray(10);
         public C_line()
         {
-            line = new BitArray(10);
+            line = new BitArray(12);
+            line[0] = true;
+            line[11] = true;
         }
     }
 }

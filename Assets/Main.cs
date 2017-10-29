@@ -5,7 +5,7 @@ using UnityEditor;
 using System.Collections.Generic;
 using UnityEngine.Networking;
 using UnityEngine.Networking.NetworkSystem;
-
+using System.Linq;
 
 public enum Motion_keys : int { left, right, up, down, a, d, w, s};
 
@@ -21,7 +21,7 @@ public class Main : MonoBehaviour {
     List<GameObject> to_render = new List<GameObject>();
     GameObject[] areas_to_render = new GameObject[2];
 
-    int next_player_render_separation = -60;
+    //int next_player_render_separation = -60;
 
 
    
@@ -35,21 +35,20 @@ public class Main : MonoBehaviour {
     //List of players playing and List for their keys. 
     public List<Player> Tetris_Players = new List<Player>();
     Motion_keys[] Current_keys = new Motion_keys[5];
-    Motion_keys last_given = Motion_keys.left;
+    Motion_keys last_Key_given = Motion_keys.left;
     Game_rules Tetris_Rules = new Game_rules();
 
-    //Networkin
 
     void Start() {
-            if (two_players)
+        if (two_players)
             {
                 Tetris_Players.Add(Create_Player());
                 Tetris_Players.Add(Create_Player());
                 foreach (Player Current_Player in Tetris_Players)
                 {
-                    Give_Player_Keys(Current_Player, last_given);
-                    last_given += Tetris_consts.keys_per_player;
-                    if (last_given > (Motion_keys)(Tetris_Players.Count * Tetris_consts.keys_per_player)) last_given = Motion_keys.left;
+                SetupPlayerControls(Current_Player, last_Key_given);
+                    last_Key_given += Tetris_consts.keys_per_player;
+                    if (last_Key_given > (Motion_keys)(Tetris_Players.Count * Tetris_consts.keys_per_player)) last_Key_given = Motion_keys.left;
                 }
             }
             else
@@ -62,10 +61,11 @@ public class Main : MonoBehaviour {
         {
             GameObject canvas = GameObject.Find("Canvas");
             Destroy(canvas);
+
             areas_to_render[0] = (Instantiate(PlayArea3D));
-            areas_to_render[1] = (Instantiate(PlayArea3D));
-            areas_to_render[1].transform.position = areas_to_render[0].transform.position + new Vector3(next_player_render_separation, 0, 0);
-            Render_Player_Blocks();
+            //areas_to_render[1] = (Instantiate(PlayArea3D));
+            //areas_to_render[1].transform.position = areas_to_render[0].transform.position + new Vector3(next_player_render_separation, 0, 0);
+            //Render_Player_Blocks();
         }
 
     }
@@ -74,15 +74,15 @@ public class Main : MonoBehaviour {
     {
         foreach (Player Current_Player in Tetris_Players)
         {
-            GetPlayersKeys(Current_Player);
-            Keypressing(Current_Player);
+            RetrievePlayerControls(Current_Player);
+            PlayerControls(Current_Player);
             if (Time.time - Current_Player.last_drop > Tetris_Rules.DropSpeed)
             {
                 Current_Player.last_drop = Time.time;
-                Debug.Log("Move time");
-                Tetris_Rules.Move_down(Current_Player);
+                //Debug.Log("Move time");
+                Tetris_Rules.Move_Player(Current_Player, 0, 1);
             }
-
+            //Tetris_Rules.Lines_Full_check(Current_Player);
             if (Render_Switch)
             {
                 Render_Player_Blocks();
@@ -90,38 +90,38 @@ public class Main : MonoBehaviour {
         }
     }
     
-    void Keypressing(Player Current_Player)
+    void PlayerControls(Player Current_Player)
     {
         if (Input.GetKeyDown(Current_Player.mymotion[0].ToString()))
         {
-            Tetris_Rules.Move_left(Current_Player);
+            Tetris_Rules.Move_Player(Current_Player, -1, 0);
         }
         if (Input.GetKeyDown(Current_Player.mymotion[1].ToString()))
         {
-            Tetris_Rules.Move_right(Current_Player);
+            Tetris_Rules.Move_Player(Current_Player, 1, 0);
         }
         if (Input.GetKeyDown(Current_Player.mymotion[2].ToString()))
         {
-            Tetris_Rules.Rotate_clock(Current_Player);
+            //Tetris_Rules.Rotate_clock(Current_Player);
         }
-        if(Input.GetKeyDown(Current_Player.mymotion[3].ToString()))
+        if(Input.GetKey(Current_Player.mymotion[3].ToString()))
         {
-            Tetris_Rules.Move_down(Current_Player);
+            Tetris_Rules.Move_Player(Current_Player, 0, 1);
         }
     }
 
-    public void GetPlayersKeys(Player Current_Player)
+    public void RetrievePlayerControls(Player Current_Player)
     {
         for (int keys = 0; keys < Tetris_consts.keys_per_player; keys++)
         {
             Current_keys[keys] =  Current_Player.mymotion[keys];
         }
     }
-    public void Give_Player_Keys(Player Assign_Keys, Motion_keys last_given)
+    public void SetupPlayerControls(Player Current_Player, Motion_keys last_given)
     {
         for (int keys = 0; keys < Tetris_consts.keys_per_player; keys++)
         {
-            Assign_Keys.mymotion[keys] = last_given + keys;
+            Current_Player.mymotion[keys] = last_given + keys;
         }
     }
     public Player Create_Player()
@@ -131,7 +131,7 @@ public class Main : MonoBehaviour {
         new_player.Player_Current_Shape = new Shape();
         Tetris_Rules.place_blocks(new_player);
         new_player.Player_Next_Shape = new Shape();
-        Give_Player_Keys(new_player, last_given);
+        SetupPlayerControls(new_player, last_Key_given);
         return new_player;
     }
 
@@ -158,7 +158,7 @@ public class Main : MonoBehaviour {
             {
                 int temp_x;
                 int temp_y;
-                for (int i = 0; i < 10; i++)
+                for (int i = 1; i < 11; i++)
                 {
                     if (line.line[i] == true)
                     {

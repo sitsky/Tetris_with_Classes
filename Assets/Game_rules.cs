@@ -13,7 +13,7 @@ public class Game_rules : Player
     //time interval between each down move of each piece ~ level difficulty
     public float DropSpeed = 0.5f;
 
-    public void Make_new_process(Player Current_Player)
+    public void Make_new_shape(Player Current_Player)
     {
         Debug.Log("Makenew");
         Current_Player.Player_Current_Shape = Current_Player.Player_Next_Shape;
@@ -26,7 +26,7 @@ public class Game_rules : Player
         Shape CurrentShape = Current_Player.Player_Current_Shape;
         foreach (Block part in CurrentShape.shape_parts)
         {
-            Current_Player.Lines[-part.y].line.Set(part.x, true);
+            Current_Player.Lines[part.y].line.Set(part.x, true);
         }
     }
 
@@ -35,102 +35,97 @@ public class Game_rules : Player
         Shape CurrentShape = Current_Player.Player_Current_Shape;
         foreach (Block part in CurrentShape.shape_parts)
         {
-            Current_Player.Lines[-part.y].line.Set(part.x, false);
+            Current_Player.Lines[part.y].line.Set(part.x, false);
         }
-    }
-
-    public bool Lines_NO_room_check(Player Current_Player)
-    {
-        Debug.Log("Lines_NO_room_check");
-        Shape CurrentShape = Current_Player.Player_Current_Shape;
-        foreach (Block part in CurrentShape.shape_parts)
-        {
-            Debug.Log(part.y.ToString());
-            if (part.y == -18)
-            {
-                place_blocks(Current_Player);
-                Make_new_process(Current_Player);
-                return false;
-            }
-            if (Current_Player.Lines[-part.y].line[part.x]) return true;
-        }
-        return false;
     }
 
     public void Lines_Full_check(Player Current_Player)
     {
-        Debug.Log("Lines_Full_check");
         foreach (C_line line in Current_Player.Lines)
         {
-            BitArray T = new BitArray(10);
+            line.line[0] = true;
+            line.line[11] = true;
+            BitArray T = new BitArray(12);
             T.SetAll(true);
             T = T.And(line.line);
-            bool fullLine = T.Cast<bool>().Contains(true);
-            if (fullLine)
+            //Debug.Log(T.ToString());
+            bool NOTfullLine = T.Cast<bool>().Contains(false);
+            //Debug.Log(NOTfullLine.ToString());
+            if (!NOTfullLine)
             {
+                Debug.Log("Lines_Full_check");
                 Current_Player.Lines.Remove(line);
                 Current_Player.Lines.Add(new C_line());
             }
         }
     }
 
-    public bool Left_right_check(Player Current_Player)
+    public void Move_Player(Player Current_Player, int move_horizontal, int move_vertical)
     {
-        Shape CurrentShape = Current_Player.Player_Current_Shape;
-        foreach (Block part in CurrentShape.shape_parts)
+        Shape Current_Shape = Current_Player.Player_Current_Shape;
+        foreach (Block part in Current_Shape.shape_parts)
         {
-            if ((part.x < 1) || (part.x > 8))
-            return true;
-        }
-        return false;
-    }
+            int new_y = part.y + move_vertical;
+            int new_x = part.x + move_horizontal;
+            Block new_shape = new Block(new_x, new_y);
+            bool in_shape = false;
 
-    public void Move_left(Player Current_Player)
-    {
-        Shape Current_Shape = Current_Player.Player_Current_Shape;
-        remove_blocks(Current_Player);
-        Current_Shape.Shape_move_left();
-        if ((Lines_NO_room_check(Current_Player)) || (Left_right_check(Current_Player)))
-        {
-            Current_Shape.Shape_move_right();
-        }
-        place_blocks(Current_Player);
-    }
-    public void Move_right(Player Current_Player)
-    {       
-        Shape Current_Shape = Current_Player.Player_Current_Shape;
-        remove_blocks(Current_Player);
-        Current_Shape.Shape_move_right();
-        if ((Lines_NO_room_check(Current_Player)) || (Left_right_check(Current_Player)))
-        {
-            Current_Shape.Shape_move_left();
-        }
-        place_blocks(Current_Player);
-    }
-    public void Move_down(Player Current_Player)
-    {
-        Debug.Log("MoveDown");
-        Shape Current_Shape = Current_Player.Player_Current_Shape;
-        remove_blocks(Current_Player);
-        Current_Shape.Shape_move_down();
-        if (Lines_NO_room_check(Current_Player))
-        {
-            Current_Shape.Shape_move_up();
-            place_blocks(Current_Player);
-            Make_new_process(Current_Player);
-        }
-        place_blocks(Current_Player);
-    }
+            for (int new_part = 0; new_part < 4; new_part++)
+            {
+                if ((Current_Shape.shape_parts[new_part].x == new_x) && (Current_Shape.shape_parts[new_part].y == new_y))               
+                    in_shape = true;               
+            }
+            if (!in_shape)
+            {
 
-    public void Rotate_clock(Player Current_Player)
+                if ((!Current_Player.Lines[new_y].line[new_x].Equals(true)) && !(new_y > 15))
+                {
+
+                    remove_blocks(Current_Player);
+                    foreach (Block part2move in Current_Shape.shape_parts)
+                    {
+                        part2move.y = part2move.y + move_vertical;
+                        part2move.x += move_horizontal;
+                    }
+                    place_blocks(Current_Player);                   
+                }
+                else
+                {
+                    if (new_y > 15)
+                    {
+                        Make_new_shape(Current_Player);
+                        return;
+                    }
+                    if (new_y > part.y)
+                    {
+                        Make_new_shape(Current_Player);
+                        return;
+                    }
+                    return;
+                }
+            }
+        }   
+}
+   /* public void Rotate_clock(Player Current_Player)
     {
         Shape Current_Shape = Current_Player.Player_Current_Shape;
-        remove_blocks(Current_Player);
-        Current_Shape.Shape_rotate_clockwise();
-        if (Lines_NO_room_check(Current_Player))
+        foreach (Block part in Current_Shape.shape_parts)
         {
-            Current_Shape.Shape_rotate_anticlockwise();
+            int old_y = -part.x;
+            int new_x = part.y;
+            if (Current_Player.Lines[old_y].line[new_x])
+                if (part.y > old_y)
+                { Make_new_shape(Current_Player); }
+                else { return; }
+        }
+        remove_blocks(Current_Player);
+        foreach (Block part in Current_Shape.shape_parts)
+        {
+            if (part.x < 0)
+                part.x += 1;
+            else if (part.x > 9)
+                part.x -= 1;
         }
         place_blocks(Current_Player);
-    }
+    }*/
 }
